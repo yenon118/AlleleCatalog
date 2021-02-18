@@ -1,0 +1,53 @@
+{
+  "project_name": "Test",
+  "workflow_path": "/storage/htc/joshilab/yenc/projects/AlleleCatalog",
+  "input_files": [
+    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska.Chr05.vcf",
+    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska.Chr11.vcf"
+  ],
+  "chromosomes": [
+    "Chr01",
+    "Chr02",
+    "Chr03",
+    "Chr04",
+    "Chr05",
+    "Chr06",
+    "Chr07",
+    "Chr08",
+    "Chr09",
+    "Chr10",
+    "Chr11",
+    "Chr12",
+    "Chr13",
+    "Chr14",
+    "Chr15",
+    "Chr16",
+    "Chr17",
+    "Chr18",
+    "Chr19",
+    "Chr20"
+  ],
+  "ancestors": [
+    "PI_634883",
+    "PI_548348",
+    "PI_594301",
+    "PI_578457A",
+    "PI_548190",
+    "ZJ-Y191",
+    "PI_603318",
+    "PI_464929A",
+    "Jin_Shan_Cha_Zhu_Shi_Dou",
+    "Fen_Dou_No_65",
+    "Bai_Mao_Dou",
+    "PI_567364",
+    "PI_393551",
+    "PI_593983",
+    "Hu_Pi_Dou"
+  ],
+  "reference_file": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/completed_allele_line_info.txt",
+  "gff_file": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/just_genes_v2.gff",
+  "gff_category": "gene",
+  "gff_key": "Name",
+  "output_folder": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/output/",
+  "threads": 20
+}

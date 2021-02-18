@@ -1,0 +1,7 @@
+
+
+/output/
+/scripts/python/Variant/__pycache__/
+
+/data/*.vcf
+*.sh
