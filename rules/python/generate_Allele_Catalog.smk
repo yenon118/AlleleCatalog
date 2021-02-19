@@ -11,5 +11,5 @@ rule generate_Allele_Catalog:
     threads: threads
     shell:
         """
-        python3 {workflow_path}/scripts/python/generate_Allele_Catalog.py -i {input.in_file} -r {input.reference_file} -g {input.gff_file} -o {output.out_file} -t {threads} -c {gff_category} -k {gff_key} 2> {log}
+        python3 {workflow_path}/scripts/python/generate_Allele_Catalog.py -i {input.in_file} -r {input.reference_file} -g {input.gff_file} -o {output.out_file} -t {threads} -c {gff_category} -k {gff_key} 2>&1 > {log}
         """

@@ -9,5 +9,5 @@ rule combine_Allele_Catalog_wide:
         os.path.join(os.path.abspath(output_folder), 'combine_Allele_Catalog_wide_log', '{project_name}.log'.format(project_name=project_name))
     shell:
         """
-        python3 {workflow_path}/scripts/python/combine_Allele_Catalog_wide.py {params} -o {output.out_file} 2> {log}
+        python3 {workflow_path}/scripts/python/combine_Allele_Catalog_wide.py {params} -o {output.out_file} 2>&1 > {log}
         """

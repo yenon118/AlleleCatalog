@@ -118,11 +118,13 @@ Please save the file with .json extension.
     "Hu_Pi_Dou"
   ],
   "reference_file": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/completed_allele_line_info.txt",
+  "genome_version": "Wm82.a2.v1",
   "gff_file": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/just_genes_v2.gff",
   "gff_category": "gene",
   "gff_key": "Name",
   "output_folder": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/output/",
-  "threads": 20
+  "memory": 100,
+  "threads": 10
 }
 ```
 

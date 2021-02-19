@@ -10,10 +10,12 @@ reference_files = config['reference_files']
 chromosomes = config['chromosomes']
 ancestors = config['ancestors']
 reference_file = config['reference_file']
+genome_version = config['genome_version']
 gff_file = config['gff_file']
 gff_category = config['gff_category']
 gff_key = config['gff_key']
 output_folder = config['output_folder']
+memory = config['memory']
 threads = config['threads']
 
 
@@ -61,28 +63,45 @@ for i, j in zip(input_samples, reference_samples):
     samples.append(j)
 
 
-print(input_folder)
-print(input_sample)
-print(input_samples)
-print(input_extension)
-
-print(reference_folder)
-print(reference_sample)
-print(reference_samples)
-print(reference_extension)
-
-print(output_folder)
-print(samples)
-
-
 rule all:
     input:
         os.path.join(os.path.abspath(output_folder), 'process_gff', 'processed_gff.gff'),
         expand(os.path.join(os.path.abspath(output_folder), 'align_input_VCF_based_on_reference_VCF', '{chromosome}'), chromosome=chromosomes),
         expand(os.path.join(os.path.abspath(output_folder), 'align_input_VCF_based_on_reference_VCF', '{chromosome}', input_sample+'_{chromosome}'+input_extension), chromosome=chromosomes),
-        expand(os.path.join(os.path.abspath(output_folder), 'align_input_VCF_based_on_reference_VCF', '{chromosome}', reference_sample+'_{chromosome}'+reference_extension), chromosome=chromosomes)
+        expand(os.path.join(os.path.abspath(output_folder), 'align_input_VCF_based_on_reference_VCF', '{chromosome}', reference_sample+'_{chromosome}'+reference_extension), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'beagle_impute_reference_file', reference_sample+'_{chromosome}'+reference_extension), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'beagle_impute_input_file', input_sample+'_{chromosome}'+input_extension), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'snpEff_reference_file', reference_sample+'_{chromosome}.html'), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'snpEff_reference_file', reference_sample+'_{chromosome}'+reference_extension), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'snpEff_input_file', input_sample+'_{chromosome}.html'), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'snpEff_input_file', input_sample+'_{chromosome}'+input_extension), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'grep_effects', reference_sample+'_{chromosome}.txt'), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'grep_effects', input_sample+'_{chromosome}.txt'), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog', '{sample}.txt'), sample=samples),
+        expand(os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog_wide', '{sample}.txt'), sample=samples),
+        os.path.join(os.path.abspath(output_folder), 'combine_Allele_Catalog_wide', '{project_name}.txt'.format(project_name=project_name)),
+        expand(os.path.join(os.path.abspath(output_folder), 'combine_Allele_Catalog_wide_split', '{project_name}_{{chromosome}}.txt'.format(project_name=project_name)), chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder), 'generate_Ancestry_Binary', '{project_name}_{{chromosome}}.txt'.format(project_name=project_name)), chromosome=chromosomes),
+        os.path.join(os.path.abspath(output_folder), 'combine_Allele_Catalog_final', '{project_name}.txt'.format(project_name=project_name))
 
 
 include: './rules/bash/grep_gff.smk'
 
 include: './rules/python/align_input_VCF_based_on_reference_VCF.smk'
+
+include: './rules/java/beagle_impute_reference_file.smk'
+include: './rules/java/beagle_impute_input_file.smk'
+include: './rules/java/snpEff_reference_file.smk'
+include: './rules/java/snpEff_input_file.smk'
+
+include: './rules/bash/grep_reference_effects.smk'
+include: './rules/bash/grep_input_effects.smk'
+
+include: './rules/python/generate_Allele_Catalog.smk'
+include: './rules/python/generate_Allele_Catalog_wide.smk'
+include: './rules/python/combine_Allele_Catalog_wide.smk'
+
+include: './rules/bash/grep_header_and_chromosome.smk'
+
+include: './rules/python/generate_Ancestry_Binary.smk'
+include: './rules/python/combine_Allele_Catalog_final.smk'
