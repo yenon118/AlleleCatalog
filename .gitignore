@@ -1,7 +1,11 @@
 
-
 /output/
+/data/Soy775/
+/data/Nebraska/
 /scripts/python/Variant/__pycache__/
+/.snakemake/
 
+/scripts/python/.nfs*
 /data/*.vcf
 *.sh
+*.out

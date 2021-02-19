@@ -1,36 +1,3 @@
-# AlleleCatalog
-
-<!-- badges: start -->
-<!-- badges: end -->
-
-The AlleleCatalog is a pipeline built for generating allele catalog using next-generation sequencing (NGS) whole-genome sequencing datasets.
-
-## Requirements
-
-In order to run the AlleleCatalog, users need to install software, programming languages, and packages in their computing systems.
-The software, programming languages, and packages include: 
-
-```
-Python3>=3.7.0
-Snakemake>=5.31.0
-Pandas>=1.1.3
-``` 
-
-## Installation
-
-You can install the AlleleCatalog from [Github](https://github.com/yenon118/AlleleCatalog.git) with:
-
-```
-git clone https://github.com/yenon118/AlleleCatalog.git
-```
-
-## Usage
-
-#### Write a configuration file in json format
-
-Please save the file with .json extension.
-
-```
 {
   "project_name": "Test",
   "workflow_path": "/storage/htc/joshilab/yenc/projects/AlleleCatalog",
@@ -124,35 +91,3 @@ Please save the file with .json extension.
   "output_folder": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/output/",
   "threads": 20
 }
-```
-
-#### Run workflow with the Snakemake workflow management system
-
-```
-snakemake -j NUMBER_OF_JOBS --configfile CONFIGURATION_FILE --snakefile SNAKEMAKE_FILE
-
-Mandatory Positional Argumants:
-    NUMBER_OF_JOBS                          - the number of jobs
-    CONFIGURATION_FILE                      - a configuration file
-    SNAKEMAKE_FILE                          - the snakyVC.smk file that sit inside this repository 
-```
-
-## Examples
-
-These are a few basic examples which show you how to use the AlleleCatalog:
-
-```
-cd /path/to/AlleleCatalog
-
-snakemake -pj 10 --configfile inputs.json --snakefile AlleleCatalog.smk
-```
-
-```
-cd /path/to/AlleleCatalog
-
-snakemake --cluster "sbatch --account=xulab --cpus-per-task=10 --time=0-02:00 \
---partition=Lewis,BioCompute,hpc5,General --mem=64G" \
---jobs 25 --latency-wait 30 \
---configfile /storage/htc/joshilab/yenc/projects/AlleleCatalog/inputs.json \
---snakefile /storage/htc/joshilab/yenc/projects/AlleleCatalog/AlleleCatalog.smk
-```
