@@ -11,7 +11,7 @@ from joblib import Parallel, delayed
 
 
 def append_ancestry_binaries(header, line, ancestor_dict_arr, output_file_path):
-    line = str(line).strip()
+    line = str(line).strip("\n")
     line_array = line.split("\t")
     ancestry_binaries_arr = []
     # Check genotypes with ancestors' genotypes
@@ -34,11 +34,14 @@ def append_ancestry_binaries(header, line, ancestor_dict_arr, output_file_path):
 def collect_all_ancestor_entries(header, line, ancestors):
     line = str(line).strip()
     line_array = line.split("\t")
-    if len(ancestors) != 0:
-        if line_array[5] in ancestors:
-            return {
-                (line_array[5], line_array[7]): line_array[9]
-            }
+    if ancestors is not None:
+        if len(ancestors) != 0:
+            if line_array[5] in ancestors:
+                return {
+                    (line_array[5], line_array[7]): line_array[9]
+                }
+            else:
+                return None
         else:
             return None
     else:
@@ -83,16 +86,17 @@ def main(args):
             for line in reader
         )
     ancestor_dict_arr = OrderedDict()
-    if len(temp_ancestor_dict_arr) > 0:
-        # Parse to get ancestry dictionary
-        for i in range(len(temp_ancestor_dict_arr)):
-            if temp_ancestor_dict_arr[i] is not None:
-                for key in temp_ancestor_dict_arr[i].keys():
-                    if key[1] not in ancestor_dict_arr.keys():
-                        ancestor_dict_arr[key[1]] = OrderedDict()
-                        ancestor_dict_arr[key[1]][key[0]] = temp_ancestor_dict_arr[i][key]
-                    else:
-                        ancestor_dict_arr[key[1]][key[0]] = temp_ancestor_dict_arr[i][key]
+    if temp_ancestor_dict_arr is not None:
+        if len(temp_ancestor_dict_arr) > 0:
+            # Parse to get ancestry dictionary
+            for i in range(len(temp_ancestor_dict_arr)):
+                if temp_ancestor_dict_arr[i] is not None:
+                    for key in temp_ancestor_dict_arr[i].keys():
+                        if key[1] not in ancestor_dict_arr.keys():
+                            ancestor_dict_arr[key[1]] = OrderedDict()
+                            ancestor_dict_arr[key[1]][key[0]] = temp_ancestor_dict_arr[i][key]
+                        else:
+                            ancestor_dict_arr[key[1]][key[0]] = temp_ancestor_dict_arr[i][key]
 
     #######################################################################
     # Read input file then append ancestry binaries
@@ -120,7 +124,7 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output_file', help='Output file', type=pathlib.Path, required=True)
 
     parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=10)
-    parser.add_argument('-a', '--ancestor', help='Ancestor Accession', type=str, action='append')
+    parser.add_argument('-a', '--ancestor', help='Ancestor Accession', type=str, action='append', default=None)
 
     args = parser.parse_args()
 

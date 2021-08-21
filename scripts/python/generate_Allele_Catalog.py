@@ -19,7 +19,11 @@ def generate_reference_dictionary(line):
     if values[0] not in reference_dictionary.keys():
         reference_dictionary[values[0]] = {
             "Sample": values[0],
-            "Maturity_Group": str(int(values[1])) if (values[1] != 'NA') else "",
+            "Maturity_Group": str(values[1]) if (
+                    isinstance(values[1], int) or
+                    str(values[1]).isdigit() or
+                    isinstance(values[1], float) or
+                    str(values[1]).replace('.', '', 1).isdigit()) else "",
             "Country": values[2],
             "State": values[3],
             "Improvement_Status": values[4],
@@ -131,6 +135,20 @@ def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, 
                     genotypes_dictionary[key]["Genotype"] + "\t" +
                     genotypes_dictionary[key]["Annotated_Genotype"] + "\n"
                 )
+            else:
+                writer.write(
+                    "" + "\t" +
+                    "" + "\t" +
+                    "" + "\t" +
+                    "" + "\t" +
+                    "" + "\t" +
+                    key + "\t" +
+                    chromosome + "\t" +
+                    gene + "\t" +
+                    position + "\t" +
+                    genotypes_dictionary[key]["Genotype"] + "\t" +
+                    genotypes_dictionary[key]["Annotated_Genotype"] + "\n"
+                )
 
 
 def main(args):
@@ -165,18 +183,19 @@ def main(args):
     #######################################################################
     # Read reference file then make a reference dictionary
     #######################################################################
-    with open(reference_file_path, "r") as reader:
-        header = reader.readline()
-        reference_column_names = header.strip().split("\t")
-        results = Parallel(n_jobs=n_jobs)(
-            delayed(generate_reference_dictionary)(line) for line in reader
-        )
-    # The results is a dictionary list, unwind the dictionary list and create dictionary with all samples.
     reference_dictionary = {}
-    for i in range(len(results)):
-        for key in results[i].keys():
-            if key not in reference_dictionary.keys():
-                reference_dictionary[key] = results[i][key]
+    if reference_file_path is not None:
+        with open(reference_file_path, "r") as reader:
+            header = reader.readline()
+            reference_column_names = header.strip().split("\t")
+            # The results is a dictionary list, unwind the dictionary list and create dictionary with all samples.
+            results = Parallel(n_jobs=n_jobs)(
+                delayed(generate_reference_dictionary)(line) for line in reader
+            )
+        for i in range(len(results)):
+            for key in results[i].keys():
+                if key not in reference_dictionary.keys():
+                    reference_dictionary[key] = results[i][key]
 
     #######################################################################
     # Read gff file then make a gff dictionary
@@ -222,10 +241,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='generate_Allele_Catalog', description='generate Allele Catalog')
 
     parser.add_argument('-i', '--input_file', help='Input file', type=pathlib.Path, required=True)
-    parser.add_argument('-r', '--reference_file', help='Reference file', type=pathlib.Path, required=True)
     parser.add_argument('-g', '--gff_file', help='GFF file', type=pathlib.Path, required=True)
     parser.add_argument('-o', '--output_file', help='Output file', type=pathlib.Path, required=True)
 
+    parser.add_argument('-r', '--reference_file', help='Reference file', type=pathlib.Path, default=None)
     parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=10)
     parser.add_argument('-c', '--gff_category', help='Gff category', type=str, default='gene')
     parser.add_argument('-k', '--gff_key', help='Gff key', type=str, default='Name')
