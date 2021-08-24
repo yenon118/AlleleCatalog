@@ -21,12 +21,12 @@ def process_reference_file(header, line, reference_output_file_path):
     line_array[8] = "GT"
     for i in range(9, len(line_array)):
         genotype_indexes = re.sub("(:.*)", "", line_array[i])
-        genotype_indexes_array = genotype_indexes.split("/")
+        genotype_indexes_array = re.split('/|\\|', genotype_indexes)
         if len(genotype_indexes_array) == 2:
             if genotype_indexes_array[0] != genotype_indexes_array[1]:
                 line_array[i] = "./."
             else:
-                line_array[i] = genotype_indexes
+                line_array[i] = "/".join(genotype_indexes_array)
         else:
             line_array[i] = "./."
     with open(reference_output_file_path, 'a') as writer:
@@ -46,12 +46,12 @@ def align_input_file_based_on_reference_dictionary(header, line, chrom_pos_ref_a
         if line_array[1] in chrom_pos_ref_alt_dict[line_array[0]].keys():
             for i in range(9, len(line_array)):
                 genotype_indexes = re.sub(":.*", "", line_array[i])
-                genotype_indexes_array = genotype_indexes.split("/")
+                genotype_indexes_array = re.split('/|\\|', genotype_indexes)
                 if len(genotype_indexes_array) == 2:
                     if genotype_indexes_array[0] != genotype_indexes_array[1]:
                         line_array[i] = "./."
                     else:
-                        line_array[i] = genotype_indexes
+                        line_array[i] = "/".join(genotype_indexes_array)
                 else:
                     line_array[i] = "./."
             with open(input_output_file_path, 'a') as writer:

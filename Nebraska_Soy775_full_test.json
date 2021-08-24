@@ -1,5 +1,5 @@
 {
-  "project_name": "Test_simplified",
+  "project_name": "Test_full_test",
   "workflow_path": "/storage/htc/joshilab/yenc/projects/AlleleCatalog",
   "input_files": [
     "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr01.vcf",
@@ -23,13 +23,28 @@
     "Chr05"
   ],
   "ancestors": [
+    "PI_634883",
+    "PI_548348",
+    "PI_594301",
+    "PI_578457A",
+    "PI_548190",
+    "ZJ-Y191",
+    "PI_603318",
+    "PI_464929A",
+    "Jin_Shan_Cha_Zhu_Shi_Dou",
+    "Fen_Dou_No_65",
+    "Bai_Mao_Dou",
+    "PI_567364",
+    "PI_393551",
+    "PI_593983",
+    "Hu_Pi_Dou"
   ],
-  "reference_file": "",
+  "reference_file": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/completed_allele_line_info.txt",
   "genome_version": "Wm82.a2.v1",
   "gff_file": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/just_genes_v2.gff",
   "gff_category": "gene",
   "gff_key": "Name",
-  "output_folder": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/output/simplified/",
+  "output_folder": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/output/Nebraska_Soy775_full_test/",
   "memory": 100,
   "threads": 10
 }
