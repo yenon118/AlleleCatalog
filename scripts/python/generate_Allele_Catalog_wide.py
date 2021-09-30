@@ -31,34 +31,72 @@ def main(args):
             pass
         if not output_file_path.parent.exists():
             sys.exit(1)
+    if output_file_path.exists():
+        output_file_path.unlink()
 
-    dat = pd.read_table(filepath_or_buffer=input_file_path)
+    #######################################################################
+    # Collect genes in the input file
+    #######################################################################
+    accessions = []
+    genes = []
+    chunksize = 100000
+    for dat in pd.read_table(filepath_or_buffer=input_file_path, usecols=['Accession', 'Gene'], chunksize=chunksize):
+        for accession in dat['Accession']:
+            if accession not in accessions:
+                accessions.append(accession)
+        for gene in dat['Gene']:
+            if gene not in genes:
+                genes.append(gene)
+    accessions.sort()
+    genes.sort()
 
-    if dat.shape[0] > 0:
-        dat = dat.drop_duplicates(subset=['Accession', 'Chromosome', 'Gene', 'Position'])
-
-        dat = dat.sort_values(by=['Accession', 'Chromosome', 'Gene', 'Position'])
-
-        column_names = dat.columns.tolist()
-
-        subset_of_column_names = dat.columns.tolist()
-        subset_of_column_names.remove('Position')
-        subset_of_column_names.remove('Genotype')
-        subset_of_column_names.remove('Genotype_with_Description')
-
-        dat = dat.groupby(subset_of_column_names, dropna=False).aggregate({
-            'Position': lambda x: ' '.join(map(str, x)),
-            'Genotype': lambda x: ' '.join(map(str, x)),
-            'Genotype_with_Description': lambda x: ' '.join(map(str, x))
-        }).reset_index()
-
-        dat = dat.drop_duplicates(subset=['Accession', 'Chromosome', 'Gene', 'Position'])
-
-        dat = dat.loc[:, column_names]
-
-        dat = dat.sort_values(by=['Accession', 'Chromosome', 'Gene'])
-
-    dat.to_csv(path_or_buf=output_file_path, sep='\t', index=False, header=True, doublequote=False)
+    #######################################################################
+    # Generate allele catalog wide
+    #######################################################################
+    for gene in genes:
+        # Create a data frame that has header only
+        df = pd.DataFrame(
+            columns=[
+                'Classification', 'Improvement_Status', 'Maturity_Group',
+                'Country', 'State', 'Accession', 'Chromosome', 'Gene',
+                'Position', 'Genotype', 'Genotype_with_Description'
+            ]
+        )
+        # Read data that has that specific gene
+        chunksize = 100000
+        for dat in pd.read_table(filepath_or_buffer=input_file_path, chunksize=chunksize):
+            dat = dat[dat['Gene'] == gene]
+            if dat.shape[0] > 0:
+                df = pd.concat([df, dat], ignore_index=True)
+        # Restructure the data frame
+        if df.shape[0] > 0:
+            df = df.drop_duplicates(subset=['Accession', 'Chromosome', 'Gene', 'Position'])
+            df = df.sort_values(by=['Accession', 'Chromosome', 'Gene', 'Position'])
+            column_names = df.columns.tolist()
+            subset_of_column_names = df.columns.tolist()
+            subset_of_column_names.remove('Position')
+            subset_of_column_names.remove('Genotype')
+            subset_of_column_names.remove('Genotype_with_Description')
+            df = df.groupby(subset_of_column_names, dropna=False).aggregate({
+                'Position': lambda x: ' '.join(map(str, x)),
+                'Genotype': lambda x: ' '.join(map(str, x)),
+                'Genotype_with_Description': lambda x: ' '.join(map(str, x))
+            }).reset_index()
+            df = df.drop_duplicates(subset=['Accession', 'Chromosome', 'Gene', 'Position'])
+            df = df.loc[:, column_names]
+            df = df.sort_values(by=['Accession', 'Chromosome', 'Gene'])
+            if (df is not None) and (df.shape[0] > 0) and (not output_file_path.exists()):
+                df.to_csv(path_or_buf=output_file_path, sep='\t', index=False, header=True, doublequote=False, mode='w')
+            elif (df is not None) and (df.shape[0] > 0) and (output_file_path.exists()) and (
+            output_file_path.is_file()):
+                df.to_csv(path_or_buf=output_file_path, sep='\t', index=False, header=False, doublequote=False,
+                          mode='a')
+    # If the output file still does not exists, write an empty table with header only
+    if not output_file_path.exists():
+        df = pd.DataFrame(
+            columns=['Classification', 'Improvement_Status', 'Maturity_Group', 'Country', 'State', 'Accession',
+                     'Chromosome', 'Gene', 'Position', 'Genotype', 'Genotype_with_Description'])
+        df.to_csv(path_or_buf=output_file_path, sep='\t', index=False, header=True, doublequote=False, mode='w')
 
 
 if __name__ == "__main__":

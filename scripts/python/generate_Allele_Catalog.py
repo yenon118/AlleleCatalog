@@ -5,6 +5,7 @@ import os
 import re
 import argparse
 import pathlib
+import gzip
 
 from joblib import Parallel, delayed
 
@@ -15,7 +16,7 @@ from Variant.Variant import Variant
 # This function is for joblib parallel
 def generate_reference_dictionary(line):
     reference_dictionary = {}
-    values = line.strip().split("\t")
+    values = line.strip("\n").split("\t")
     if values[0] not in reference_dictionary.keys():
         reference_dictionary[values[0]] = {
             "Sample": values[0],
@@ -47,7 +48,7 @@ def generate_gff_dictionary(line, gff_category, gff_key):
             (re.search(gff_key, line) is None) or (re.search("scaffold", line) is not None):
         return None
     else:
-        values = line.strip().split("\t")
+        values = line.strip("\n").split("\t")
         chromosome = values[0]
         category = values[2]
         start = values[3]
@@ -119,7 +120,7 @@ def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, 
     # Append the allele catalog string to the output file
     with open(output_file_path, "a") as writer:
         for key in genotypes_dictionary.keys():
-            if (key in reference_dictionary.keys()) and (gene != "") and \
+            if (key in reference_dictionary.keys()) and (gene != "") and (gene is not None) and \
                     (genotypes_dictionary[key]["Genotype"] != "<INS>") and \
                     (genotypes_dictionary[key]["Genotype"] != "<DEL>"):
                 writer.write(
@@ -135,7 +136,9 @@ def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, 
                     genotypes_dictionary[key]["Genotype"] + "\t" +
                     genotypes_dictionary[key]["Annotated_Genotype"] + "\n"
                 )
-            else:
+            elif (key not in reference_dictionary.keys()) and (gene != "") and (gene is not None) and \
+                    (genotypes_dictionary[key]["Genotype"] != "<INS>") and \
+                    (genotypes_dictionary[key]["Genotype"] != "<DEL>"):
                 writer.write(
                     "" + "\t" +
                     "" + "\t" +
@@ -224,14 +227,24 @@ def main(args):
     #######################################################################
     # Read input file then generate allele catalog
     #######################################################################
-    with open(input_file_path, "r") as reader:
-        header = ""
-        while not header.strip().startswith("#CHROM"):
-            header = reader.readline()
-        Parallel(n_jobs=n_jobs, backend="threading")(
-            delayed(generate_allele_catalog)(header, line, reference_dictionary, gff_dictionary, output_file_path)
-            for line in reader
-        )
+    if str(input_file_path).endswith('gz'):
+        with gzip.open(input_file_path, 'rt') as reader:
+            header = ""
+            while not header.strip().startswith("#CHROM"):
+                header = reader.readline()
+            Parallel(n_jobs=n_jobs, backend="threading")(
+                delayed(generate_allele_catalog)(header, line, reference_dictionary, gff_dictionary, output_file_path)
+                for line in reader
+            )
+    else:
+        with open(input_file_path, "r") as reader:
+            header = ""
+            while not header.strip().startswith("#CHROM"):
+                header = reader.readline()
+            Parallel(n_jobs=n_jobs, backend="threading")(
+                delayed(generate_allele_catalog)(header, line, reference_dictionary, gff_dictionary, output_file_path)
+                for line in reader
+            )
 
 
 if __name__ == "__main__":

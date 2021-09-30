@@ -33,37 +33,39 @@ def main(args):
             sys.exit(1)
 
     #######################################################################
-    # Merge all Allele Catalog together
+    # Merge all Allele Catalogs together
     #######################################################################
     header = True
+    chunksize = 100000
     for i in range(len(input_file_paths)):
-        dat = pd.read_table(
-            filepath_or_buffer=input_file_paths[i],
-            dtype={
-                "Classification": str,
-                "Improvement_Status": str,
-                "Maturity_Group": str,
-                "Country": str,
-                "State": str,
-                "Accession": str,
-                "Chromosome": str,
-                "Gene": str,
-                "Position": str,
-                "Genotype": str,
-                "Genotype_with_Description": str,
-                "Ancestry_Binary": str
-            }
-        )
-        dat = dat.sort_values(by=['Accession', 'Chromosome', 'Gene'])
-        if header:
-            dat.to_csv(
-                path_or_buf=output_file_path, sep='\t', index=False, header=header, doublequote=False, mode='w'
-            )
-            header = False
-        else:
-            dat.to_csv(
-                path_or_buf=output_file_path, sep='\t', index=False, header=header, doublequote=False, mode='a'
-            )
+        for dat in pd.read_table(
+                filepath_or_buffer=input_file_paths[i],
+                dtype={
+                    "Classification": str,
+                    "Improvement_Status": str,
+                    "Maturity_Group": str,
+                    "Country": str,
+                    "State": str,
+                    "Accession": str,
+                    "Chromosome": str,
+                    "Gene": str,
+                    "Position": str,
+                    "Genotype": str,
+                    "Genotype_with_Description": str,
+                    "Ancestry_Binary": str
+                },
+                chunksize=chunksize
+        ):
+            dat = dat.sort_values(by=['Accession', 'Chromosome', 'Gene'])
+            if header:
+                dat.to_csv(
+                    path_or_buf=output_file_path, sep='\t', index=False, header=header, doublequote=False, mode='w'
+                )
+                header = False
+            else:
+                dat.to_csv(
+                    path_or_buf=output_file_path, sep='\t', index=False, header=header, doublequote=False, mode='a'
+                )
 
 
 if __name__ == "__main__":
