@@ -6,6 +6,7 @@ import re
 import argparse
 import pathlib
 import gzip
+import threading
 
 from joblib import Parallel, delayed
 
@@ -80,7 +81,7 @@ def generate_gff_dictionary(line, gff_category, gff_key):
 
 
 # Generate allele catalog
-def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, output_file_path):
+def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, output_file_path, lock):
     # Parse header and line to get variant
     variant = Variant(header, line)
 
@@ -118,6 +119,7 @@ def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, 
     genotypes_dictionary = variant.get_genotypes_dictionary()
 
     # Append the allele catalog string to the output file
+    lock.acquire()
     with open(output_file_path, "a") as writer:
         for key in genotypes_dictionary.keys():
             if (key in reference_dictionary.keys()) and (gene != "") and (gene is not None) and \
@@ -152,6 +154,7 @@ def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, 
                     genotypes_dictionary[key]["Genotype"] + "\t" +
                     genotypes_dictionary[key]["Annotated_Genotype"] + "\n"
                 )
+    lock.release()
 
 
 def main(args):
@@ -166,6 +169,11 @@ def main(args):
     n_jobs = args.threads
     gff_category = args.gff_category
     gff_key = args.gff_key
+
+    #######################################################################
+    # Create a threading lock
+    #######################################################################
+    lock = threading.Lock()
 
     #######################################################################
     # Check if output parent folder exists
@@ -233,7 +241,7 @@ def main(args):
             while not header.strip().startswith("#CHROM"):
                 header = reader.readline()
             Parallel(n_jobs=n_jobs, backend="threading")(
-                delayed(generate_allele_catalog)(header, line, reference_dictionary, gff_dictionary, output_file_path)
+                delayed(generate_allele_catalog)(header, line, reference_dictionary, gff_dictionary, output_file_path, lock)
                 for line in reader
             )
     else:
@@ -242,7 +250,7 @@ def main(args):
             while not header.strip().startswith("#CHROM"):
                 header = reader.readline()
             Parallel(n_jobs=n_jobs, backend="threading")(
-                delayed(generate_allele_catalog)(header, line, reference_dictionary, gff_dictionary, output_file_path)
+                delayed(generate_allele_catalog)(header, line, reference_dictionary, gff_dictionary, output_file_path, lock)
                 for line in reader
             )
 
