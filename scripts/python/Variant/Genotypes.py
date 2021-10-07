@@ -24,7 +24,7 @@ class Genotypes:
     def generate_indexes_array_from_indexes_string_array(self):
         indexes_array = []
         for i in range(len(self.indexes_string_array)):
-            indexes_array.append(re.sub(":.*", "", self.indexes_string_array[i]).split("|"))
+            indexes_array.append(re.split('/|\\|', str(re.sub(":.*", "", self.indexes_string_array[i]))))
         return indexes_array
 
     # Generate genotype object dictionary based on samples and all related information

@@ -40,7 +40,7 @@ class FunctionalEffectAnnotations:
             # Use allele, functional effect, and amino acid change to create
             # annotated alternate alleles dictionary.
             for i in range(len(self.functional_effect_annotation_string_array)):
-                single_functional_effect_annotation = self.functional_effect_annotation_string_array[i].split("|")
+                single_functional_effect_annotation = re.split('/|\\|', str(self.functional_effect_annotation_string_array[i]))
                 # Check if it is a primary transcript.
                 # We only consider primary transcript.
                 pattern = re.sub("\\\\", "\\\\\\\\", single_functional_effect_annotation[3])
