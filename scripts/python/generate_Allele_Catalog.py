@@ -10,7 +10,55 @@ import threading
 
 from joblib import Parallel, delayed
 
-from Variant.Variant import Variant
+
+# These are the effects we need to focus on.
+EFFECTS = [
+    'frameshift_variant',
+    'exon_loss_variant',
+    'duplication',
+    'inversion',
+    'feature_ablation',
+    'gene_fusion',
+    'rearranged_at_DNA_level',
+    'missense_variant',
+    'protein_protein_contact',
+    'structural_interaction_variant',
+    'rare_amino_acid_variant',
+    'splice_acceptor_variant',
+    'splice_donor_variant',
+    'stop_lost',
+    'start_lost',
+    'stop_gained',
+    'inframe_insertion',
+    'disruptive_inframe_insertion',
+    'inframe_deletion',
+    'disruptive_inframe_deletion'
+]
+
+
+def clean_amino_acid_change_string(amino_acid_change):
+    amino_acid_change = re.sub('Gly', 'G', amino_acid_change)
+    amino_acid_change = re.sub('Pro', 'P', amino_acid_change)
+    amino_acid_change = re.sub('Val', 'V', amino_acid_change)
+    amino_acid_change = re.sub('Leu', 'L', amino_acid_change)
+    amino_acid_change = re.sub('Met', 'M', amino_acid_change)
+    amino_acid_change = re.sub('Cys', 'C', amino_acid_change)
+    amino_acid_change = re.sub('Phe', 'F', amino_acid_change)
+    amino_acid_change = re.sub('Tyr', 'Y', amino_acid_change)
+    amino_acid_change = re.sub('Trp', 'W', amino_acid_change)
+    amino_acid_change = re.sub('His', 'H', amino_acid_change)
+    amino_acid_change = re.sub('Lys', 'K', amino_acid_change)
+    amino_acid_change = re.sub('Arg', 'R', amino_acid_change)
+    amino_acid_change = re.sub('Gln', 'Q', amino_acid_change)
+    amino_acid_change = re.sub('Asp', 'D', amino_acid_change)
+    amino_acid_change = re.sub('Ser', 'S', amino_acid_change)
+    amino_acid_change = re.sub('Thr', 'T', amino_acid_change)
+    amino_acid_change = re.sub('Asn', 'N', amino_acid_change)
+    amino_acid_change = re.sub('Ile', 'I', amino_acid_change)
+    amino_acid_change = re.sub('Glu', 'E', amino_acid_change)
+    amino_acid_change = re.sub('Ala', 'A', amino_acid_change)
+    amino_acid_change = re.sub('p\\.', '', amino_acid_change)
+    return amino_acid_change
 
 
 # Generate reference dictionary
@@ -83,78 +131,156 @@ def generate_gff_dictionary(line, gff_category, gff_key):
 # Generate allele catalog
 def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, output_file_path, lock):
     # Parse header and line to get variant
-    variant = Variant(header, line)
+    accessions = str(header).strip().split("\t")[9:]
+    line_array = str(line).strip().split("\t")
 
-    # Get chromosome and position
-    chromosome = variant.get_chromosome()
-    position = variant.get_position()
+    chromosome = line_array[0]
+    position = line_array[1]
 
-    # Fix gene because SnpEff gene is not always accurate
-    gene_array = variant.get_gene().split("&")
-    for g in gene_array:
-        try:
-            if g.upper() in gff_dictionary.keys():
-                if (gff_dictionary[g.upper()]["Chromosome"] == chromosome) and \
-                        (float(gff_dictionary[g.upper()]["Start"].strip()) <= float(position.strip()) <= float(
-                            gff_dictionary[g.upper()]["Stop"].strip())):
-                    variant.set_gene(g)
-        except Exception as e:
-            print("Allele Catalog - generate_allele_catalog function error !!!")
-            print("Key " + g.upper() + " is not in the gff dictionary.")
+    reference_allele = line_array[3]
+    annotated_reference_allele = reference_allele + "|Ref"
 
-    gene_array = variant.get_gene().split("&")
-    if len(gene_array) > 1:
-        for key in gff_dictionary.keys():
-            if (gff_dictionary[key]["Chromosome"] == chromosome) and \
-                    (float(gff_dictionary[key]["Start"].strip()) <= float(position.strip()) <= float(
-                        gff_dictionary[key]["Stop"].strip())):
-                variant.set_gene(gff_dictionary[key]["Gene"])
+    alternate_alleles = line_array[4].split(",")
 
-    gene_array = variant.get_gene().split("&")
-    if len(gene_array) > 1:
-        variant.set_gene("")
+    genotypes = [re.split('/|\\|', genotype)[0] for genotype in line_array[9:]]
 
-    # Get gene and genotypes dictionary
-    gene = variant.get_gene()
-    genotypes_dictionary = variant.get_genotypes_dictionary()
+    info_dict = {}
+    info = line_array[7].split(";")
+    functional_effect_annotation_string = ""
+    for i in range(len(info)):
+        if info[i].startswith("EFF="):
+            functional_effect_annotation_string = re.sub("EFF=", "", info[i])
+            functional_effect_annotation_string = functional_effect_annotation_string.strip()
+            break
+        if info[i].startswith("ANN="):
+            functional_effect_annotation_string = re.sub("ANN=", "", info[i])
+            functional_effect_annotation_string = functional_effect_annotation_string.strip()
+            break
+    if functional_effect_annotation_string != "":
+        functional_effect_annotation_string_array = functional_effect_annotation_string.split(",")
+        for i in range(len(functional_effect_annotation_string_array)):
+            single_functional_effect_annotation = re.split('\\|', str(functional_effect_annotation_string_array[i]))
+            # Check if it is a primary transcript.
+            # We only consider primary transcript.
+            pattern = re.sub("\\\\", "\\\\\\\\", single_functional_effect_annotation[3])
+            pattern = re.sub("\\+", "\\+", pattern)
+            pattern = re.sub("\\*", "\\*", pattern)
+            pattern = re.sub("\\?", "\\?", pattern)
+            pattern = re.sub("\\(", "\\(", pattern)
+            pattern = re.sub("\\)", "\\)", pattern)
+            pattern = re.sub("\\[", "\\[", pattern)
+            if str(single_functional_effect_annotation[6]).find(str(pattern+".1")) != -1:
+                allele = str(single_functional_effect_annotation[0]).strip()
+                gene = str(single_functional_effect_annotation[3]).strip()
+                functional_effect = str(single_functional_effect_annotation[1]).strip()
+                amino_acid_change = str(single_functional_effect_annotation[10]).strip()
+                if any([str(functional_effect).find(effect) != -1 for effect in EFFECTS]):
+                    if amino_acid_change != "":
+                        amino_acid_change = clean_amino_acid_change_string(amino_acid_change)
+                    if gene.upper() not in info_dict.keys():
+                        info_dict[gene.upper()] = {}
+                        if allele not in info_dict[gene.upper()].keys():
+                            info_dict[gene.upper()][allele] = {
+                                'Functional_Effects': functional_effect,
+                                'Amino_Acid_Changes': amino_acid_change
+                            }
+                        else:
+                            if info_dict[gene.upper()][allele]['Functional_Effects'] == "":
+                                info_dict[gene.upper()][allele]['Functional_Effects'] = functional_effect
+                            else:
+                                info_dict[gene.upper()][allele]['Functional_Effects'] = info_dict[gene.upper()][allele]['Functional_Effects']+'&'+functional_effect
+                            if info_dict[gene.upper()][allele]['Amino_Acid_Changes'] == "":
+                                info_dict[gene.upper()][allele]['Amino_Acid_Changes'] = amino_acid_change
+                            else:
+                                info_dict[gene.upper()][allele]['Amino_Acid_Changes'] = info_dict[gene.upper()][allele]['Amino_Acid_Changes']+'&'+amino_acid_change
+                    else:
+                        if allele not in info_dict[gene.upper()].keys():
+                            info_dict[gene.upper()][allele] = {
+                                'Functional_Effects': functional_effect,
+                                'Amino_Acid_Changes': amino_acid_change
+                            }
+                        else:
+                            if info_dict[gene.upper()][allele]['Functional_Effects'] == "":
+                                info_dict[gene.upper()][allele]['Functional_Effects'] = functional_effect
+                            else:
+                                info_dict[gene.upper()][allele]['Functional_Effects'] = info_dict[gene.upper()][allele]['Functional_Effects']+'&'+functional_effect
+                            if info_dict[gene.upper()][allele]['Amino_Acid_Changes'] == "":
+                                info_dict[gene.upper()][allele]['Amino_Acid_Changes'] = amino_acid_change
+                            else:
+                                info_dict[gene.upper()][allele]['Amino_Acid_Changes'] = info_dict[gene.upper()][allele]['Amino_Acid_Changes']+'&'+amino_acid_change
+    
+    genes = []
+    for key in gff_dictionary.keys():
+        if (gff_dictionary[key]["Chromosome"] == chromosome) and (float(gff_dictionary[key]["Start"].strip()) <= float(position.strip()) <= float(gff_dictionary[key]["Stop"].strip())):
+            gene = gff_dictionary[key]["Gene"]
+            if gene is not None:
+                if gene != "":
+                    genes.append(gene)
 
-    # Append the allele catalog string to the output file
-    lock.acquire()
-    with open(output_file_path, "a") as writer:
-        for key in genotypes_dictionary.keys():
-            if (key in reference_dictionary.keys()) and (gene != "") and (gene is not None) and \
-                    (genotypes_dictionary[key]["Genotype"] != "<INS>") and \
-                    (genotypes_dictionary[key]["Genotype"] != "<DEL>"):
-                writer.write(
-                    reference_dictionary[key]["Classification"] + "\t" +
-                    reference_dictionary[key]["Improvement_Status"] + "\t" +
-                    reference_dictionary[key]["Maturity_Group"] + "\t" +
-                    reference_dictionary[key]["Country"] + "\t" +
-                    reference_dictionary[key]["State"] + "\t" +
-                    key + "\t" +
-                    chromosome + "\t" +
-                    gene + "\t" +
-                    position + "\t" +
-                    genotypes_dictionary[key]["Genotype"] + "\t" +
-                    genotypes_dictionary[key]["Annotated_Genotype"] + "\n"
-                )
-            elif (key not in reference_dictionary.keys()) and (gene != "") and (gene is not None) and \
-                    (genotypes_dictionary[key]["Genotype"] != "<INS>") and \
-                    (genotypes_dictionary[key]["Genotype"] != "<DEL>"):
-                writer.write(
-                    "" + "\t" +
-                    "" + "\t" +
-                    "" + "\t" +
-                    "" + "\t" +
-                    "" + "\t" +
-                    key + "\t" +
-                    chromosome + "\t" +
-                    gene + "\t" +
-                    position + "\t" +
-                    genotypes_dictionary[key]["Genotype"] + "\t" +
-                    genotypes_dictionary[key]["Annotated_Genotype"] + "\n"
-                )
-    lock.release()
+    # Collect all genotype information and write to the output file
+    if ((len(genes) > 0) and (len(accessions) > 0) and (len(genotypes) > 0) and (len(accessions) == len(genotypes))):
+        for i in range(len(genes)):
+            for j in range(len(accessions)):
+                try:
+                    genotype = ""
+                    genotype_with_description = ""
+                    if genotypes[j] is not None:
+                        if genotypes[j] != "":
+                            genotype_index = int(genotypes[j])
+                            if genotype_index == 0:
+                                genotype = reference_allele
+                                genotype_with_description = annotated_reference_allele
+                            elif genotype_index > 0:
+                                genotype = alternate_alleles[genotype_index-1]
+                                flags = [str(info_key).find(genes[i].upper()) != -1 for info_key in info_dict.keys()]
+                                flags = [flag_index for flag_index, flag in enumerate(flags) if flag]
+                                if (len(flags) == 1) and (list(info_dict.keys())[flags[0]] in info_dict.keys()):
+                                    if genotype in info_dict[genes[i].upper()].keys():
+                                        if info_dict[genes[i].upper()][genotype]['Functional_Effects'] != "":
+                                            genotype_with_description = genotype+"|"+info_dict[genes[i].upper()][genotype]['Functional_Effects']
+                                            if info_dict[genes[i].upper()][genotype]['Amino_Acid_Changes'] != "":
+                                                genotype_with_description = genotype_with_description+"|"+info_dict[genes[i].upper()][genotype]['Amino_Acid_Changes']
+                                        else:
+                                            genotype_with_description = genotype+"|Alt"
+                                    else:
+                                        genotype_with_description = genotype+"|Alt"
+                                else:
+                                    genotype_with_description = genotype+"|Alt"
+
+                    # Write to the output file
+                    lock.acquire()
+                    with open(output_file_path, "a") as writer:
+                        if (accessions[j] in reference_dictionary.keys()) and (genes[i] != "") and (genotype != "") and (genotype_with_description != "") and (genotype != "<INS>") and (genotype != "<DEL>"):
+                            writer.write(
+                                reference_dictionary[accessions[j]]["Classification"] + "\t" +
+                                reference_dictionary[accessions[j]]["Improvement_Status"] + "\t" +
+                                reference_dictionary[accessions[j]]["Maturity_Group"] + "\t" +
+                                reference_dictionary[accessions[j]]["Country"] + "\t" +
+                                reference_dictionary[accessions[j]]["State"] + "\t" +
+                                accessions[j] + "\t" +
+                                chromosome + "\t" +
+                                genes[i] + "\t" +
+                                position + "\t" +
+                                genotype + "\t" +
+                                genotype_with_description + "\n"
+                            )
+                        elif (accessions[j] not in reference_dictionary.keys()) and (genes[i] != "") and (genotype != "") and (genotype_with_description != "") and (genotype != "<INS>") and (genotype != "<DEL>"):
+                            writer.write(
+                                "" + "\t" +
+                                "" + "\t" +
+                                "" + "\t" +
+                                "" + "\t" +
+                                "" + "\t" +
+                                accessions[j] + "\t" +
+                                chromosome + "\t" +
+                                genes[i] + "\t" +
+                                position + "\t" +
+                                genotype + "\t" +
+                                genotype_with_description + "\n"
+                            )
+                    lock.release()
+                except Exception as e:
+                    print(e)
 
 
 def main(args):
