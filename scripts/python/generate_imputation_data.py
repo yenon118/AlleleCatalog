@@ -50,7 +50,7 @@ def generate_gff_dictionary(line, gff_category, gff_key):
             return gff_dictionary
 
 
-# Generate allele catalog
+# Generate imputation data for allele catalog
 def generate_imputation_data(header, line, gff_dictionary, output_file_path, lock):
     # Parse header and line to get variant
     header_array = str(header).strip().split("\t")
@@ -165,7 +165,7 @@ def main(args):
                 delayed(generate_imputation_data)(header, line, gff_dictionary, output_file_path, lock)
                 for line in reader
             )
-    
+
     #######################################################################
     # Create imputation dictionary
     #######################################################################
