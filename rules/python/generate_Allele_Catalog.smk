@@ -1,13 +1,13 @@
 rule generate_Allele_Catalog:
     input:
-        in_file = os.path.join(os.path.abspath(output_folder), 'grep_effects', '{sample}.txt'),
+        in_file = os.path.join(os.path.abspath(output_folder), 'grep_effects', input_sample+'_{chromosome}'+input_extension),
         gff_file = os.path.join(os.path.abspath(output_folder), 'process_gff', 'processed_gff.gff')
     params:
         '-r '+reference_file if (os.path.exists(reference_file) and os.path.isfile(reference_file)) else ""
     output:
-        out_file = os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog', '{sample}.txt')
+        out_file = os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog', input_sample+'_{chromosome}.txt')
     log:
-        os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog_log', '{sample}.log')
+        os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog_log', input_sample+'_{chromosome}.log')
     message: "Executing generate_Allele_Catalog rule with {threads} threads."
     threads: threads
     shell:

@@ -1,8 +1,8 @@
 rule combine_Allele_Catalog_wide:
     input:
-        in_file = expand(os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog_wide', '{sample}.txt'), sample=samples)
+        in_file = expand(os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog_wide', input_sample+'_{chromosome}.txt'), chromosome=chromosomes)
     params:
-        ' '.join(['-i '+os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog_wide', '{sample}.txt'.format(sample=sample))  for sample in samples])
+        ' '.join(['-i '+os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog_wide', input_sample+'_{chromosome}.txt'.format(chromosome=chromosome))  for chromosome in chromosomes])
     output:
         out_file = os.path.join(os.path.abspath(output_folder), 'combine_Allele_Catalog_wide', '{project_name}.txt'.format(project_name=project_name))
     log:

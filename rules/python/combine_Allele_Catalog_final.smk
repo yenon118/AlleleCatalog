@@ -1,8 +1,8 @@
 rule combine_Allele_Catalog_final:
     input:
-        in_file = expand(os.path.join(os.path.abspath(output_folder), 'generate_Ancestry_Binary', '{project_name}_{{chromosome}}.txt'.format(project_name=project_name)), chromosome=chromosomes)
+        in_file = expand(os.path.join(os.path.abspath(output_folder), 'generate_Ancestry_Binary', input_sample+'_{chromosome}.txt'), chromosome=chromosomes)
     params:
-        ' '.join(['-i '+os.path.join(os.path.abspath(output_folder), 'generate_Ancestry_Binary', '{project_name}_{chromosome}.txt'.format(project_name=project_name, chromosome=chromosome))  for chromosome in chromosomes])
+        ' '.join(['-i '+os.path.join(os.path.abspath(output_folder), 'generate_Ancestry_Binary', input_sample+'_{chromosome}.txt'.format(chromosome=chromosome))  for chromosome in chromosomes])
     output:
         out_file = os.path.join(os.path.abspath(output_folder), 'combine_Allele_Catalog_final', '{project_name}.txt'.format(project_name=project_name))
     log:

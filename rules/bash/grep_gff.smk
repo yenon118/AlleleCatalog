@@ -6,5 +6,5 @@ rule grep_gff:
     priority: 90
     shell:
         """
-        grep -e "{gff_category}" -e "{gff_key}" {input.in_file} > {output.out_file}
+        zgrep -e "{gff_category}" -e "{gff_key}" {input.in_file} > {output.out_file}
         """
