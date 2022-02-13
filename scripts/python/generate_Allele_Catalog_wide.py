@@ -25,13 +25,15 @@ def generate_gene_array(line, gene_array):
 # Generate wide allele catalog
 # This function is for joblib parallel
 def generate_allele_catalog_wide(input_file_path, genes, output_file_path, lock):
+    # Read data of specific genes
     df = pd.DataFrame(columns = ['Classification', 'Improvement_Status', 'Maturity_Group', 'Country', 'State', 'Accession', 'Chromosome', 'Gene', 'Position', 'Genotype', 'Genotype_with_Description'])
     chunksize = 100000
     for dat in pd.read_table(filepath_or_buffer=input_file_path, chunksize=chunksize):
         dat = dat[dat['Gene'].isin(genes)]
         if dat.shape[0] > 0:
             df = pd.concat([df, dat])
-    lock.acquire()
+
+    # Process data if table has at least one row
     if df.shape[0] > 0:
         df = df.drop_duplicates(subset=['Accession', 'Chromosome', 'Gene', 'Position'])
         df = df.sort_values(by=['Accession', 'Chromosome', 'Gene', 'Position'])
@@ -48,11 +50,14 @@ def generate_allele_catalog_wide(input_file_path, genes, output_file_path, lock)
         df = df.drop_duplicates(subset=['Accession', 'Chromosome', 'Gene', 'Position'])
         df = df.loc[:, column_names]
         df = df.sort_values(by=['Accession', 'Chromosome', 'Gene'])
+
+        # Save table to output file
+        lock.acquire()
         if (df is not None) and (df.shape[0] > 0) and (not output_file_path.exists()):
             df.to_csv(path_or_buf=output_file_path, sep='\t', index=False, header=True, doublequote=False, mode='w')
         elif (df is not None) and (df.shape[0] > 0) and (output_file_path.exists()) and (output_file_path.is_file()):
             df.to_csv(path_or_buf=output_file_path, sep='\t', index=False, header=False, doublequote=False, mode='a')
-    lock.release()
+        lock.release()
 
 
 def main(args):

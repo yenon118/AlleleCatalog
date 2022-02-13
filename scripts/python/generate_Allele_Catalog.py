@@ -130,6 +130,10 @@ def generate_gff_dictionary(line, gff_category, gff_key):
 
 # Generate allele catalog
 def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, output_file_path, lock):
+
+    # Create an output array
+    output_array = []
+
     # Parse header and line to get variant
     accessions = str(header).strip().split("\t")[9:]
     line_array = str(line).strip().split("\t")
@@ -247,40 +251,47 @@ def generate_allele_catalog(header, line, reference_dictionary, gff_dictionary, 
                                 else:
                                     genotype_with_description = genotype+"|Alt"
 
-                    # Write to the output file
-                    lock.acquire()
-                    with open(output_file_path, "a") as writer:
-                        if (accessions[j] in reference_dictionary.keys()) and (genes[i] != "") and (genotype != "") and (genotype_with_description != "") and (genotype != "<INS>") and (genotype != "<DEL>"):
-                            writer.write(
-                                reference_dictionary[accessions[j]]["Classification"] + "\t" +
-                                reference_dictionary[accessions[j]]["Improvement_Status"] + "\t" +
-                                reference_dictionary[accessions[j]]["Maturity_Group"] + "\t" +
-                                reference_dictionary[accessions[j]]["Country"] + "\t" +
-                                reference_dictionary[accessions[j]]["State"] + "\t" +
-                                accessions[j] + "\t" +
-                                chromosome + "\t" +
-                                genes[i] + "\t" +
-                                position + "\t" +
-                                genotype + "\t" +
-                                genotype_with_description + "\n"
-                            )
-                        elif (accessions[j] not in reference_dictionary.keys()) and (genes[i] != "") and (genotype != "") and (genotype_with_description != "") and (genotype != "<INS>") and (genotype != "<DEL>"):
-                            writer.write(
-                                "" + "\t" +
-                                "" + "\t" +
-                                "" + "\t" +
-                                "" + "\t" +
-                                "" + "\t" +
-                                accessions[j] + "\t" +
-                                chromosome + "\t" +
-                                genes[i] + "\t" +
-                                position + "\t" +
-                                genotype + "\t" +
-                                genotype_with_description + "\n"
-                            )
-                    lock.release()
+                    # Check accession and append result to output array
+                    if (accessions[j] in reference_dictionary.keys()) and (genes[i] != "") and (genotype != "") and (genotype_with_description != "") and (genotype != "<INS>") and (genotype != "<DEL>"):
+                        output_array.append(
+                            reference_dictionary[accessions[j]]["Classification"] + "\t" +
+                            reference_dictionary[accessions[j]]["Improvement_Status"] + "\t" +
+                            reference_dictionary[accessions[j]]["Maturity_Group"] + "\t" +
+                            reference_dictionary[accessions[j]]["Country"] + "\t" +
+                            reference_dictionary[accessions[j]]["State"] + "\t" +
+                            accessions[j] + "\t" +
+                            chromosome + "\t" +
+                            genes[i] + "\t" +
+                            position + "\t" +
+                            genotype + "\t" +
+                            genotype_with_description + "\n"
+                        )
+                    elif (accessions[j] not in reference_dictionary.keys()) and (genes[i] != "") and (genotype != "") and (genotype_with_description != "") and (genotype != "<INS>") and (genotype != "<DEL>"):
+                        output_array.append(
+                            "" + "\t" +
+                            "" + "\t" +
+                            "" + "\t" +
+                            "" + "\t" +
+                            "" + "\t" +
+                            accessions[j] + "\t" +
+                            chromosome + "\t" +
+                            genes[i] + "\t" +
+                            position + "\t" +
+                            genotype + "\t" +
+                            genotype_with_description + "\n"
+                        )
                 except Exception as e:
                     print(e)
+
+    # Write output array to output file
+    if len(output_array) > 0:
+        lock.acquire()
+        try:
+            with open(output_file_path, "a") as writer:
+                writer.write(''.join(output_array))
+        except Exception as e:
+            print(e)
+        lock.release()
 
 
 def main(args):
