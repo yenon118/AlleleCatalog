@@ -190,6 +190,10 @@ def main(args):
     #######################################################################
     # Write header to the output file
     #######################################################################
+    if str(output_file_path).endswith(".csv"):
+        output_file_path = pathlib.Path(re.sub(".csv", "_summarize.csv", str(output_file_path)))
+    if str(output_file_path).endswith(".txt"):
+        output_file_path = pathlib.Path(re.sub(".txt", "_summarize.txt", str(output_file_path)))
     writer = open(output_file_path, "w")
     writer.write(
         "Accession\tGene\tImputation\n"
