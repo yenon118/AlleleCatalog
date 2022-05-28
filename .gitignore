@@ -1,4 +1,5 @@
 
+/data/
 /tools/
 /output/
 /data/Soy775/
@@ -9,5 +10,8 @@
 
 /scripts/python/.nfs*
 /data/*.vcf
+/data/*/*.vcf
+/data/*/*/*.vcf
+inputs_test_*
 *.sh
 *.out

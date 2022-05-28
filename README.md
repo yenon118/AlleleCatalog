@@ -14,6 +14,8 @@ The software, programming languages, and packages include:
 Python3>=3.7.0
 Snakemake>=5.31.0
 Pandas>=1.1.3
+Beagle>=5.2
+SnpEff>=4.3
 ``` 
 
 ## Installation
@@ -32,29 +34,29 @@ Please save the file with .json extension.
 
 ```
 {
-  "project_name": "Test",
-  "workflow_path": "/storage/htc/joshilab/yenc/projects/AlleleCatalog",
+  "project_name": "Test_Soy1066",
+  "workflow_path": "/scratch/yenc/projects/AlleleCatalog",
   "input_files": [
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr01.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr02.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr03.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr04.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr05.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr06.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr07.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr08.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr09.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr10.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr11.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr12.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr13.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr14.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr15.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr16.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr17.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr18.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr19.vcf",
-    "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/Nebraska/Nebraska_Chr20.vcf"
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr01.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr02.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr03.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr04.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr05.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr06.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr07.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr08.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr09.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr10.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr11.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr12.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr13.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr14.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr15.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr16.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr17.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr18.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr19.vcf.gz",
+    "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr20.vcf.gz"
   ],
   "chromosomes": [
     "Chr01",
@@ -78,14 +80,14 @@ Please save the file with .json extension.
     "Chr19",
     "Chr20"
   ],
-  "reference_file": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/completed_allele_line_info.txt",
+  "metadata_file": "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/Soy1066_allele_line_info.txt",
   "genome_version": "Wm82.a2.v1",
-  "gff_file": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/data/just_genes_v2.gff",
+  "gff_file": "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/Wm82.a2.v1.genes.tiny.gff",
   "gff_category": "gene",
   "gff_key": "Name",
-  "output_folder": "/storage/htc/joshilab/yenc/projects/AlleleCatalog/output/",
+  "output_folder": "/scratch/yenc/projects/AlleleCatalog/output/Test_Soy1066/",
   "memory": 100,
-  "threads": 10
+  "threads": 4
 }
 ```
 
@@ -97,7 +99,7 @@ snakemake -j NUMBER_OF_JOBS --configfile CONFIGURATION_FILE --snakefile SNAKEMAK
 Mandatory Positional Argumants:
     NUMBER_OF_JOBS                          - the number of jobs
     CONFIGURATION_FILE                      - a configuration file
-    SNAKEMAKE_FILE                          - the snakyVC.smk file that sit inside this repository 
+    SNAKEMAKE_FILE                          - the AlleleCatalog.smk file that sit inside this repository 
 ```
 
 ## Examples
@@ -107,7 +109,7 @@ These are a few basic examples which show you how to use the AlleleCatalog:
 ```
 cd /path/to/AlleleCatalog
 
-snakemake -pj 10 --configfile inputs.json --snakefile AlleleCatalog.smk
+snakemake -pj 3 --configfile inputs.json --snakefile AlleleCatalog.smk
 ```
 
 ```

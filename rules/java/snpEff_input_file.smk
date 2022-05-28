@@ -15,5 +15,8 @@ rule snpEff_input_file:
     shell:
         """
         mkdir -p {output.out_tmp_dir};
-        java -Xmx{resources.memory}G -Djava.io.tmpdir={output.out_tmp_dir} -jar {workflow_path}/tools/snpEff/snpEff.jar -s {output.summary_file} -v {params.genome_version} {input.in_file} 2> {log} 1> {output.out_file}
+
+        (java -Xmx{resources.memory}G -Djava.io.tmpdir={output.out_tmp_dir} \
+        -jar {workflow_path}/tools/snpEff/snpEff.jar -s {output.summary_file} \
+        -v {params.genome_version} {input.in_file} | bgzip > {output.out_file}) 2> {log}
         """
