@@ -115,9 +115,9 @@ snakemake -pj 3 --configfile inputs.json --snakefile AlleleCatalog.smk
 ```
 cd /path/to/AlleleCatalog
 
-snakemake --cluster "sbatch --account=xulab --cpus-per-task=10 --time=0-02:00 \
+snakemake --cluster "sbatch --account=xulab --cpus-per-task=3 --time=0-02:00 \
 --partition=Lewis,BioCompute,hpc5,General --mem=64G" \
---jobs 25 --latency-wait 30 \
---configfile /storage/htc/joshilab/yenc/projects/AlleleCatalog/inputs.json \
+--jobs 25 --latency-wait 60 \
+--configfile /storage/htc/joshilab/yenc/projects/AlleleCatalog/lewis_slurm_inputs.json \
 --snakefile /storage/htc/joshilab/yenc/projects/AlleleCatalog/AlleleCatalog.smk
 ```
