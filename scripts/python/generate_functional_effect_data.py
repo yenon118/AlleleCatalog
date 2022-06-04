@@ -72,26 +72,27 @@ def process_line(header_array, line_array, output_array):
     chromosome = line_array[0]
     position = line_array[1]
 
-    annotation_string = re.sub('(.*ANN=)|(;.*)', '', line_array[7])
+    if (line_array[7] != ".") and (line_array[7] != ""):
+        annotation_string = re.sub('(.*ANN=)|(;.*)', '', line_array[7])
 
-    annotation_array = [re.split('\\|', annotation) for annotation in re.split(';', annotation_string)]
+        annotation_array = [re.split('\\|', annotation) for annotation in re.split(';', annotation_string)]
 
-    for i in range(len(annotation_array)):
-        functional_effect = str(annotation_array[i][1]).strip()
-        amino_acid_change = str(annotation_array[i][10]).strip()
+        for i in range(len(annotation_array)):
+            functional_effect = str(annotation_array[i][1]).strip()
+            amino_acid_change = str(annotation_array[i][10]).strip()
 
-        if any([str(functional_effect).find(effect) != -1 for effect in EFFECTS]):
-            output_array.append(
-                chromosome + "\t" +
-                position + "\t" +
-                str(annotation_array[i][0]).strip() + "\t" +
-                functional_effect + "\t" +
-                str(annotation_array[i][3]).strip() + "\t" +
-                str(annotation_array[i][4]).strip() + "\t" +
-                str(annotation_array[i][5]).strip() + "\t" +
-                str(annotation_array[i][6]).strip() + "\t" +
-                clean_amino_acid_change_string(amino_acid_change) + "\n"
-            )
+            if any([str(functional_effect).find(effect) != -1 for effect in EFFECTS]):
+                output_array.append(
+                    chromosome + "\t" +
+                    position + "\t" +
+                    str(annotation_array[i][0]).strip() + "\t" +
+                    functional_effect + "\t" +
+                    str(annotation_array[i][3]).strip() + "\t" +
+                    str(annotation_array[i][4]).strip() + "\t" +
+                    str(annotation_array[i][5]).strip() + "\t" +
+                    str(annotation_array[i][6]).strip() + "\t" +
+                    clean_amino_acid_change_string(amino_acid_change) + "\n"
+                )
 
 
 def main(args):
