@@ -75,7 +75,7 @@ def process_line(header_array, line_array, output_array):
     if (line_array[7] != ".") and (line_array[7] != ""):
         annotation_string = re.sub('(.*ANN=)|(;.*)', '', line_array[7])
 
-        annotation_array = [re.split('\\|', annotation) for annotation in re.split(';', annotation_string)]
+        annotation_array = [re.split('\\|', annotation) for annotation in re.split(',|;', annotation_string)]
 
         for i in range(len(annotation_array)):
             functional_effect = str(annotation_array[i][1]).strip()
