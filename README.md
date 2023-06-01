@@ -121,3 +121,7 @@ snakemake --cluster "sbatch --account=xulab --cpus-per-task=3 --time=0-02:00 \
 --configfile /storage/htc/joshilab/yenc/projects/AlleleCatalog/lewis_slurm_inputs.json \
 --snakefile /storage/htc/joshilab/yenc/projects/AlleleCatalog/AlleleCatalog.smk
 ```
+
+## Citation
+
+Chan YO, Dietz N, Zeng S, Wang J, Flint-Garcia S, Salazar-Vidal MN, Škrabišová M, Bilyeu K, Joshi T: **The Allele Catalog Tool: a web-based interactive tool for allele discovery and analysis.** BMC Genomics 2023, 24(1):107.
