@@ -6,6 +6,7 @@ import re
 project_name = config['project_name']
 workflow_path = config['workflow_path']
 input_files = config['input_files']
+reference_files = config['reference_files']
 chromosomes = config['chromosomes']
 beagle_window = config['beagle_window']
 metadata_file = config['metadata_file']
@@ -24,6 +25,12 @@ input_samples = []
 input_extension = ''
 
 
+reference_folder = ''
+reference_sample = ''
+reference_samples = []
+reference_extension = ''
+
+
 for i in range(len(input_files)):
 	if os.path.dirname(input_files[i]) != input_folder:
 		input_folder = os.path.dirname(input_files[i])
@@ -38,6 +45,20 @@ for i in range(len(input_files)):
 		input_sample = possible_sample
 
 
+for i in range(len(reference_files)):
+	if os.path.dirname(reference_files[i]) != reference_folder:
+		reference_folder = os.path.dirname(reference_files[i])
+	possible_sample = re.sub('(\\.vcf.*)', '', str(os.path.basename(reference_files[i])))
+	if possible_sample not in reference_samples:
+		reference_samples.append(possible_sample)
+	possible_extension = re.sub(possible_sample,'',str(os.path.basename(reference_files[i])))
+	if possible_extension != reference_extension:
+		reference_extension = possible_extension
+	possible_sample = re.sub(re.compile('_'+str(chromosomes[i])+'$'), '', possible_sample)
+	if reference_sample != possible_sample:
+		reference_sample = possible_sample
+
+
 rule all:
 	input:
 		expand(os.path.join(os.path.abspath(output_folder), 'beagle_impute_input_file', input_sample+'_{chromosome}'+input_extension), chromosome=chromosomes),
@@ -50,7 +71,7 @@ rule all:
 		expand(os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog', input_sample+'_{chromosome}.txt'), chromosome=chromosomes)
 
 
-include: './rules/java/beagle_impute_input_file.smk'
+include: './rules/java/beagle_impute_input_file_with_reference_file.smk'
 include: './rules/java/snpEff_input_file.smk'
 
 include: './rules/bash/grep_input_effects.smk'
