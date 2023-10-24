@@ -2,7 +2,6 @@
 
 # python3 /scratch/yenc/projects/2022_05_25_AlleleCatalog/scripts/generate_genotype_data.py \
 # -i /scratch/yenc/projects/2022_05_25_AlleleCatalog/data/Bcftools_view_reheader/Soy1066_Chr01.vcf.gz \
-# -f /scratch/yenc/projects/2022_05_25_AlleleCatalog/output/Soy1066_Allele_Catalog/Soy1066_Allele_Catalog_functional_effect_ac2.txt \
 # -m /scratch/yenc/projects/2022_05_25_AlleleCatalog/output/Soy1066_Allele_Catalog/Soy1066_Allele_Catalog_imputation_ac2.txt \
 # -o /scratch/yenc/projects/2022_05_25_AlleleCatalog/output/Soy1066_Allele_Catalog/Soy1066_Allele_Catalog_Chr01_genotype_ac2.txt
 
@@ -15,7 +14,7 @@ import gzip
 
 
 # Process line in VCF file
-def process_line(header_array, line_array, functional_effect_dict, imputation_dict, output_array):
+def process_line(header_array, line_array, imputation_dict, output_array):
 	chromosome = line_array[0]
 	position = line_array[1]
 	reference_allele = line_array[3]
@@ -29,24 +28,18 @@ def process_line(header_array, line_array, functional_effect_dict, imputation_di
 
 	genotype_array = [alleles[genotype_index] for genotype_index in genotype_index_array]
 
-	functional_effect_array = ['Ref' if genotype_index == 0 else 'Alt' for genotype_index in genotype_index_array]
+	category_array = ['Ref' if genotype_index == 0 else 'Alt' for genotype_index in genotype_index_array]
+
+	category_index_array = [0 if genotype_index == 0 else 1 for genotype_index in genotype_index_array]
 
 
 	for i in range(len(accession_array)):
 
 		accession = str(accession_array[i]).strip()
 		genotype = str(genotype_array[i]).strip()
-		functional_effect = functional_effect_array[i]
-		amino_acid_change = ''
+		category = str(category_array[i]).strip()
+		category_index = str(category_index_array[i]).strip()
 		imputation = ''
-
-		if (chromosome in functional_effect_dict.keys()):
-			if (position in functional_effect_dict[chromosome].keys()):
-				if (genotype in functional_effect_dict[chromosome][position].keys()):
-					if (functional_effect_dict[chromosome][position][genotype]['Functional_Effect'] != ''):
-						functional_effect = functional_effect_dict[chromosome][position][genotype]['Functional_Effect']
-					if (functional_effect_dict[chromosome][position][genotype]['Amino_Acid_Change'] != ''):
-						amino_acid_change = functional_effect_dict[chromosome][position][genotype]['Amino_Acid_Change']
 
 		if (chromosome in imputation_dict.keys()):
 			if (position in imputation_dict[chromosome].keys()):
@@ -58,8 +51,8 @@ def process_line(header_array, line_array, functional_effect_dict, imputation_di
 			position + "\t" +
 			accession + "\t" +
 			genotype + "\t" +
-			functional_effect + "\t" +
-			amino_acid_change + "\t" +
+			category + "\t" +
+			category_index + "\t" +
 			imputation + "\n"
 		)
 
@@ -69,7 +62,6 @@ def main(args):
 	# Get arguments
 	#######################################################################
 	input_file_path = args.input_file
-	functional_effect_file_path = args.functional_effect_file
 	imputation_file_path = args.imputation_file
 	output_file_path = args.output_file
 
@@ -93,42 +85,7 @@ def main(args):
 	# Write output file header
 	#######################################################################
 	with open(output_file_path, 'w') as writer:
-		writer.write("Chromosome\tPosition\tAccession\tGenotype\tFunctional_Effect\tAmino_Acid_Change\tImputation\n")
-
-	#######################################################################
-	# Load functional effect file
-	#######################################################################
-	functional_effect_dict = {}
-
-	with open(functional_effect_file_path, 'r') as reader:
-		header = reader.readline()
-		header_array = str(header).strip("\n").strip("\r").strip("\r\n").split("\t")
-		for line in reader:
-			line_array = str(line).strip("\n").strip("\r").strip("\r\n").split("\t")
-
-			chromosome = str(line_array[0]).strip()
-			position = str(line_array[1]).strip()
-			genotype = str(line_array[2]).strip()
-			functional_effect = str(line_array[3]).strip()
-			amino_acid_change = str(line_array[8]).strip()
-
-			if (chromosome not in functional_effect_dict.keys()):
-				functional_effect_dict[chromosome] = {}
-
-			if (position not in functional_effect_dict[chromosome].keys()):
-				functional_effect_dict[chromosome][position] = {}
-
-			if (genotype not in functional_effect_dict[chromosome][position].keys()):
-				functional_effect_dict[chromosome][position][genotype] = {
-					"Functional_Effect": '',
-					"Amino_Acid_Change": ''
-				}
-
-			if (functional_effect is not None) and (functional_effect != '') and (functional_effect_dict[chromosome][position][genotype]['Functional_Effect'] == ''):
-				functional_effect_dict[chromosome][position][genotype]['Functional_Effect'] = functional_effect
-
-			if (functional_effect is not None) and (functional_effect != '') and (functional_effect_dict[chromosome][position][genotype]['Amino_Acid_Change'] == ''):
-				functional_effect_dict[chromosome][position][genotype]['Amino_Acid_Change'] = amino_acid_change
+		writer.write("Chromosome\tPosition\tAccession\tGenotype\tCategory\tCategory_Index\tImputation\n")
 
 	#######################################################################
 	# Load imputation file
@@ -168,7 +125,7 @@ def main(args):
 				header_array = str(header).strip("\n").strip("\r").strip("\r\n").split("\t")
 			for line in reader:
 				line_array = str(line).strip("\n").strip("\r").strip("\r\n").split("\t")
-				process_line(header_array, line_array, functional_effect_dict, imputation_dict, output_array)
+				process_line(header_array, line_array, imputation_dict, output_array)
 				# Check and write data
 				if (len(output_array) > chunksize):
 					with open(output_file_path, 'a') as writer:
@@ -182,7 +139,7 @@ def main(args):
 				header_array = str(header).strip("\n").strip("\r").strip("\r\n").split("\t")
 			for line in reader:
 				line_array = str(line).strip("\n").strip("\r").strip("\r\n").split("\t")
-				process_line(header_array, line_array, functional_effect_dict, imputation_dict, output_array)
+				process_line(header_array, line_array, imputation_dict, output_array)
 				# Check and write data
 				if (len(output_array) > chunksize):
 					with open(output_file_path, 'a') as writer:
@@ -203,7 +160,6 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(prog='generate_genotype_data', description='generate_genotype_data')
 
 	parser.add_argument('-i', '--input_file', help='Input file', type=pathlib.Path, required=True)
-	parser.add_argument('-f', '--functional_effect_file', help='Functional effect file', type=pathlib.Path, required=True)
 	parser.add_argument('-m', '--imputation_file', help='Imputation file', type=pathlib.Path, required=True)
 	parser.add_argument('-o', '--output_file', help='Output file', type=pathlib.Path, required=True)
 

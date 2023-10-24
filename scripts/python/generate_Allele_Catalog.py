@@ -2,6 +2,7 @@
 
 # python3 /scratch/yenc/projects/2022_05_25_AlleleCatalog/scripts/generate_Allele_Catalog.py \
 # -i /scratch/yenc/projects/2022_05_25_AlleleCatalog/output/Soy1066_Allele_Catalog/Soy1066_Allele_Catalog_Chr01_genotype_ac2.txt \
+# -f /scratch/yenc/projects/2022_05_25_AlleleCatalog/output/Soy1066_Allele_Catalog/Soy1066_Allele_Catalog_functional_effect_ac2.txt \
 # -m /scratch/yenc/projects/2022_05_25_AlleleCatalog/data/Soy1066_allele_line_info.txt \
 # -g /scratch/yenc/datasets/soybean_reference_genome/Wm82.a2.v1.genes.gff \
 # -o /scratch/yenc/projects/2022_05_25_AlleleCatalog/output/Soy1066_Allele_Catalog/Soy1066_Allele_Catalog_Chr01_final.txt \
@@ -15,7 +16,7 @@ import pathlib
 import gzip
 
 
-def generate_allele_catalog(chromosome, gene_id, gene_start, gene_end, input_file_path, metadata_header_array, metadata_dict, output_array):
+def generate_allele_catalog(chromosome, gene_id, gene_start, gene_end, input_file_path, functional_effect_header_array, functional_effect_dict, metadata_header_array, metadata_dict, output_array):
 	genotype_dict = {}
 
 	with open(input_file_path, 'r') as reader:
@@ -31,9 +32,20 @@ def generate_allele_catalog(chromosome, gene_id, gene_start, gene_end, input_fil
 					position = str(line_array[1]).strip()
 					accession = str(line_array[2]).strip()
 					genotype = str(line_array[3]).strip()
-					functional_effect = str(line_array[4]).strip()
-					amino_acid_change = str(line_array[5]).strip()
+					category = str(line_array[4]).strip()
 					imputation = str(line_array[6]).strip()
+
+					# Add functional effect
+					functional_effect = category
+					amino_acid_change = ""
+					if (gene_id in functional_effect_dict.keys()):
+						if (chromosome in functional_effect_dict[gene_id].keys()):
+							if (position in functional_effect_dict[gene_id][chromosome].keys()):
+								if (genotype in functional_effect_dict[gene_id][chromosome][position].keys()):
+									if functional_effect_dict[gene_id][chromosome][position][genotype]["Functional_Effect"] != "":
+										functional_effect = functional_effect_dict[gene_id][chromosome][position][genotype]["Functional_Effect"]
+									if functional_effect_dict[gene_id][chromosome][position][genotype]["Amino_Acid_Change"] != "":
+										amino_acid_change = functional_effect_dict[gene_id][chromosome][position][genotype]["Amino_Acid_Change"]
 
 					if (accession not in genotype_dict.keys()):
 						genotype_dict[accession] = {}
@@ -56,6 +68,7 @@ def generate_allele_catalog(chromosome, gene_id, gene_start, gene_end, input_fil
 		for accession in genotype_dict.keys():
 			output_string = ""
 
+			# Add metadata
 			if (accession in metadata_dict.keys()):
 				for metadata_key in metadata_header_array[1:]:
 					if (metadata_key in metadata_dict[accession].keys()):
@@ -65,17 +78,21 @@ def generate_allele_catalog(chromosome, gene_id, gene_start, gene_end, input_fil
 			else:
 				output_string = output_string + str('\t'.join(['']*len(metadata_header_array[1:]))) + '\t'
 
+			# Add accession, gene, and chromosome
 			output_string = output_string + accession + '\t' + gene_id + '\t' + chromosome + '\t'
 
 			if (accession in genotype_dict.keys()):
 
+				# Add positions
 				position_array = list(genotype_dict[accession].keys())
 				position_array.sort()
 
 				output_string = output_string + str(' '.join(position_array)) + '\t'
 
+				# Add genotypes
 				output_string = output_string + str(' '.join([genotype_dict[accession][position]['Genotype'] for position in position_array])) + '\t'
 
+				# Add genotypes with description
 				for position in position_array:
 					output_string = output_string + str(
 						genotype_dict[accession][position]['Genotype'] + '|' +
@@ -85,11 +102,13 @@ def generate_allele_catalog(chromosome, gene_id, gene_start, gene_end, input_fil
 					).strip('|') + ' '
 				output_string = output_string + '\t'
 
+				# Add imputation
 				if '+' in [genotype_dict[accession][position]['Imputation'] for position in position_array]:
 					output_string = output_string + '+' + '\n'
 				else:
 					output_string = output_string + '-' + '\n'
 
+				# Append output_string to output_array
 				output_array.append(output_string)
 
 
@@ -98,6 +117,7 @@ def main(args):
 	# Get arguments
 	#######################################################################
 	input_file_path = args.input_file
+	functional_effect_file_path = args.functional_effect_file
 	metadata_file_path = args.metadata_file
 	gff_file_path = args.gff_file
 	output_file_path = args.output_file
@@ -121,6 +141,44 @@ def main(args):
 			pass
 		if not output_file_path.parent.exists():
 			sys.exit(1)
+
+	#######################################################################
+	# Load functional effect file
+	#######################################################################
+	functional_effect_dict = {}
+
+	with open(functional_effect_file_path, 'r') as reader:
+		functional_effect_header = reader.readline()
+		functional_effect_header_array = str(functional_effect_header).strip("\n").strip("\r").strip("\r\n").split("\t")
+		for line in reader:
+			line_array = str(line).strip("\n").strip("\r").strip("\r\n").split("\t")
+
+			chromosome = str(line_array[0]).strip()
+			position = str(line_array[1]).strip()
+			allele = str(line_array[2]).strip()
+			functional_effect = str(line_array[3]).strip()
+			gene_name = str(line_array[4]).strip()
+			amino_acid_change = str(line_array[8]).strip()
+
+			if (gene_name not in functional_effect_dict.keys()):
+				functional_effect_dict[gene_name] = {}
+
+			if (chromosome not in functional_effect_dict[gene_name].keys()):
+				functional_effect_dict[gene_name][chromosome] = {}
+
+			if (position not in functional_effect_dict[gene_name][chromosome].keys()):
+				functional_effect_dict[gene_name][chromosome][position] = {}
+
+			if (allele not in functional_effect_dict[gene_name][chromosome][position].keys()):
+				functional_effect_dict[gene_name][chromosome][position][allele] = {
+					"Functional_Effect": functional_effect,
+					"Amino_Acid_Change": amino_acid_change
+				}
+			else:
+				if functional_effect_dict[gene_name][chromosome][position][allele]["Functional_Effect"] == "":
+					functional_effect_dict[gene_name][chromosome][position][allele]["Functional_Effect"] = functional_effect
+				if functional_effect_dict[gene_name][chromosome][position][allele]["Amino_Acid_Change"] == "":
+					functional_effect_dict[gene_name][chromosome][position][allele]["Amino_Acid_Change"] = amino_acid_change
 
 	#######################################################################
 	# Load metadata file
@@ -206,6 +264,8 @@ def main(args):
 				gff_dict[chromosome][gene_id]['Start'],
 				gff_dict[chromosome][gene_id]['End'],
 				input_file_path,
+				functional_effect_header_array,
+				functional_effect_dict,
 				metadata_header_array,
 				metadata_dict,
 				output_array
@@ -230,7 +290,8 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(prog='generate_Allele_Catalog', description='generate_Allele_Catalog')
 
 	parser.add_argument('-i', '--input_file', help='Input file', type=pathlib.Path, required=True)
-	parser.add_argument('-m', '--metadata_file', help='Matadata file', type=pathlib.Path, required=True)
+	parser.add_argument('-f', '--functional_effect_file', help='Functional effect file', type=pathlib.Path, required=True)
+	parser.add_argument('-m', '--metadata_file', help='Metadata file', type=pathlib.Path, required=True)
 	parser.add_argument('-g', '--gff_file', help='GFF file', type=pathlib.Path, required=True)
 	parser.add_argument('-o', '--output_file', help='Output file', type=pathlib.Path, required=True)
 

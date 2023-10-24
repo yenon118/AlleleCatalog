@@ -1,6 +1,7 @@
 rule generate_Allele_Catalog:
 	input:
 		in_file = os.path.join(os.path.abspath(output_folder), 'generate_genotype_data', input_sample+'_{chromosome}.txt'),
+		functional_effect_file = os.path.join(os.path.abspath(output_folder), 'generate_functional_effect_data', input_sample+'_{chromosome}.txt'),
 		metadata_file = metadata_file,
 		gff_file = gff_file
 	params:
@@ -14,6 +15,7 @@ rule generate_Allele_Catalog:
 		"""
 		python3 {workflow_path}/scripts/python/generate_Allele_Catalog.py \
 		-i {input.in_file} \
+		-f {input.functional_effect_file} \
 		-m {input.metadata_file} \
 		-g {input.gff_file} \
 		-o {output.out_file} \
