@@ -102,67 +102,65 @@ def process_line(header_array, line_array, output_array):
 			if any([str(functional_effect).find(effect) != -1 for effect in EFFECTS]):
 
 				if genotype not in snpeff_dict.keys():
-					snpeff_dict[genotype] = {
+					snpeff_dict[genotype] = {}
+
+				if gene_name not in snpeff_dict[genotype].keys():
+					snpeff_dict[genotype][gene_name] = {
 						'functional_effect': functional_effect,
-						'gene_name': gene_name,
 						'gene': gene,
 						'feature_type': feature_type,
 						'feature': feature,
 						'amino_acid_change': amino_acid_change
 					}
 				else:
-					snpeff_dict[genotype]['functional_effect'] = snpeff_dict[genotype]['functional_effect'] + '&' + functional_effect
-					snpeff_dict[genotype]['gene_name'] = snpeff_dict[genotype]['gene_name'] + '&' + gene_name
-					snpeff_dict[genotype]['gene'] = snpeff_dict[genotype]['gene'] + '&' + gene
-					snpeff_dict[genotype]['feature_type'] = snpeff_dict[genotype]['feature_type'] + '&' + feature_type
-					snpeff_dict[genotype]['feature'] = snpeff_dict[genotype]['feature'] + '&' + feature
-					snpeff_dict[genotype]['amino_acid_change'] = snpeff_dict[genotype]['amino_acid_change'] + '&' + amino_acid_change
+					snpeff_dict[genotype][gene_name]['functional_effect'] = snpeff_dict[genotype][gene_name]['functional_effect'] + '&' + functional_effect
+					snpeff_dict[genotype][gene_name]['gene'] = snpeff_dict[genotype][gene_name]['gene'] + '&' + gene
+					snpeff_dict[genotype][gene_name]['feature_type'] = snpeff_dict[genotype][gene_name]['feature_type'] + '&' + feature_type
+					snpeff_dict[genotype][gene_name]['feature'] = snpeff_dict[genotype][gene_name]['feature'] + '&' + feature
+					snpeff_dict[genotype][gene_name]['amino_acid_change'] = snpeff_dict[genotype][gene_name]['amino_acid_change'] + '&' + amino_acid_change
 
 		if snpeff_dict:
 			for genotype in snpeff_dict.keys():
-				snpeff_dict[genotype]['functional_effect'] = str(snpeff_dict[genotype]['functional_effect']).strip().strip('&')
-				snpeff_dict[genotype]['gene_name'] = str(snpeff_dict[genotype]['gene_name']).strip().strip('&')
-				snpeff_dict[genotype]['gene'] = str(snpeff_dict[genotype]['gene']).strip().strip('&')
-				snpeff_dict[genotype]['feature_type'] = str(snpeff_dict[genotype]['feature_type']).strip().strip('&')
-				snpeff_dict[genotype]['feature'] = str(snpeff_dict[genotype]['feature']).strip().strip('&')
-				snpeff_dict[genotype]['amino_acid_change'] = str(snpeff_dict[genotype]['amino_acid_change']).strip().strip('&')
+				for gene_name in snpeff_dict[genotype].keys():
+					snpeff_dict[genotype][gene_name]['functional_effect'] = str(snpeff_dict[genotype][gene_name]['functional_effect']).strip().strip('&')
+					snpeff_dict[genotype][gene_name]['gene'] = str(snpeff_dict[genotype][gene_name]['gene']).strip().strip('&')
+					snpeff_dict[genotype][gene_name]['feature_type'] = str(snpeff_dict[genotype][gene_name]['feature_type']).strip().strip('&')
+					snpeff_dict[genotype][gene_name]['feature'] = str(snpeff_dict[genotype][gene_name]['feature']).strip().strip('&')
+					snpeff_dict[genotype][gene_name]['amino_acid_change'] = str(snpeff_dict[genotype][gene_name]['amino_acid_change']).strip().strip('&')
 
-				if snpeff_dict[genotype]['functional_effect'] != "":
-					unique_functional_effect_array = unique(re.split('&', snpeff_dict[genotype]['functional_effect']))
-					snpeff_dict[genotype]['functional_effect'] = '&'.join(unique_functional_effect_array)
-				if snpeff_dict[genotype]['gene_name'] != "":
-					unique_gene_name_array = unique(re.split('&', snpeff_dict[genotype]['gene_name']))
-					unique_gene_name_array.sort()
-					snpeff_dict[genotype]['gene_name'] = '&'.join(unique_gene_name_array)
-				if snpeff_dict[genotype]['gene'] != "":
-					unique_gene_array = unique(re.split('&', snpeff_dict[genotype]['gene']))
-					unique_gene_array.sort()
-					snpeff_dict[genotype]['gene'] = '&'.join(unique_gene_array)
-				if snpeff_dict[genotype]['feature_type'] != "":
-					unique_feature_type_array = unique(re.split('&', snpeff_dict[genotype]['feature_type']))
-					unique_feature_type_array.sort()
-					snpeff_dict[genotype]['feature_type'] = '&'.join(unique_feature_type_array)
-				if snpeff_dict[genotype]['feature'] != "":
-					unique_feature_array = unique(re.split('&', snpeff_dict[genotype]['feature']))
-					unique_feature_array.sort()
-					snpeff_dict[genotype]['feature'] = '&'.join(unique_feature_array)
-				if snpeff_dict[genotype]['amino_acid_change'] != "":
-					unique_amino_acid_change_array = unique(re.split('&', snpeff_dict[genotype]['amino_acid_change']))
-					snpeff_dict[genotype]['amino_acid_change'] = '&'.join(unique_amino_acid_change_array)
+					if snpeff_dict[genotype][gene_name]['functional_effect'] != "":
+						unique_functional_effect_array = unique(re.split('&', snpeff_dict[genotype][gene_name]['functional_effect']))
+						snpeff_dict[genotype][gene_name]['functional_effect'] = '&'.join(unique_functional_effect_array)
+					if snpeff_dict[genotype][gene_name]['gene'] != "":
+						unique_gene_array = unique(re.split('&', snpeff_dict[genotype][gene_name]['gene']))
+						unique_gene_array.sort()
+						snpeff_dict[genotype][gene_name]['gene'] = '&'.join(unique_gene_array)
+					if snpeff_dict[genotype][gene_name]['feature_type'] != "":
+						unique_feature_type_array = unique(re.split('&', snpeff_dict[genotype][gene_name]['feature_type']))
+						unique_feature_type_array.sort()
+						snpeff_dict[genotype][gene_name]['feature_type'] = '&'.join(unique_feature_type_array)
+					if snpeff_dict[genotype][gene_name]['feature'] != "":
+						unique_feature_array = unique(re.split('&', snpeff_dict[genotype][gene_name]['feature']))
+						unique_feature_array.sort()
+						snpeff_dict[genotype][gene_name]['feature'] = '&'.join(unique_feature_array)
+					if snpeff_dict[genotype][gene_name]['amino_acid_change'] != "":
+						unique_amino_acid_change_array = unique(re.split('&', snpeff_dict[genotype][gene_name]['amino_acid_change']))
+						snpeff_dict[genotype][gene_name]['amino_acid_change'] = '&'.join(unique_amino_acid_change_array)
 
 		if snpeff_dict:
 			for genotype in snpeff_dict.keys():
-				output_array.append(
-					chromosome + "\t" +
-					position + "\t" +
-					genotype + "\t" +
-					snpeff_dict[genotype]['functional_effect'] + "\t" +
-					snpeff_dict[genotype]['gene_name'] + "\t" +
-					snpeff_dict[genotype]['gene'] + "\t" +
-					snpeff_dict[genotype]['feature_type'] + "\t" +
-					snpeff_dict[genotype]['feature'] + "\t" +
-					clean_amino_acid_change_string(snpeff_dict[genotype]['amino_acid_change']) + "\n"
-				)
+				for gene_name in snpeff_dict[genotype].keys():
+					output_array.append(
+						chromosome + "\t" +
+						position + "\t" +
+						genotype + "\t" +
+						snpeff_dict[genotype][gene_name]['functional_effect'] + "\t" +
+						gene_name + "\t" +
+						snpeff_dict[genotype][gene_name]['gene'] + "\t" +
+						snpeff_dict[genotype][gene_name]['feature_type'] + "\t" +
+						snpeff_dict[genotype][gene_name]['feature'] + "\t" +
+						clean_amino_acid_change_string(snpeff_dict[genotype][gene_name]['amino_acid_change']) + "\n"
+					)
 
 
 def main(args):
@@ -243,11 +241,11 @@ def main(args):
 		filepath_or_buffer=output_file_path
 	)
 
-	dat = dat.sort_values(by=['Feature'])
+	dat = dat.sort_values(by=['Chromosome', 'Position', 'Allele', 'Gene_Name'])
 
-	dat = dat.drop_duplicates(subset=['Chromosome', 'Position', 'Allele'])
+	dat = dat.drop_duplicates(subset=['Chromosome', 'Position', 'Allele', 'Gene_Name'])
 
-	dat = dat.sort_values(by=['Chromosome', 'Position', 'Allele'])
+	dat = dat.sort_values(by=['Chromosome', 'Position', 'Allele', 'Gene_Name'])
 
 	dat.to_csv(
 		path_or_buf=output_file_path,
