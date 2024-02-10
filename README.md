@@ -3,20 +3,105 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The AlleleCatalog is a pipeline built for generating allele catalog using next-generation sequencing (NGS) whole-genome sequencing datasets.
+The AlleleCatalog pipeline is built for generating Allele Catalog datasets using next-generation sequencing (NGS) based genetic data and metadata.
 
 ## Requirements
 
-In order to run the AlleleCatalog, users need to install software, programming languages, and packages in their computing systems.
-The software, programming languages, and packages include: 
+In order to run the AlleleCatalog pipeline, users need to install Miniconda and prepare the Miniconda environment in their computing systems.
+
+The required software, programming languages, and packages include:
 
 ```
-Python3>=3.7.0
-Snakemake>=5.31.0
-Pandas>=1.1.3
+bwa>=0.7.17
+gatk4>=4.4.0.0
+samtools>=1.6
+htslib>=1.3
+python>=3.12
+snakemake>=8.4
+numpy>=1.26
+pandas>=2.2
 Beagle>=5.2
 SnpEff>=4.3
 ``` 
+
+Miniconda can be downloaded from [https://docs.anaconda.com/free/miniconda/](https://docs.anaconda.com/free/miniconda/).
+
+For example, if users plan to install Miniconda3 Linux 64-bit, the wget tool can be used to download the Miniconda.
+
+```
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+```
+
+To install Miniconda in a server or cluster, users can use the command below.
+
+Please remember to replace the _<installation_shell_script>_ to the actual Miniconda installation shell script. In our case, it is **Miniconda3-latest-Linux-x86_64.sh**.
+
+Please also remember to replace the _<desired_new_directory>_ to an actual directory absolute path. 
+
+```
+chmod 777 -R <installation_shell_script>
+./<installation_shell_script> -b -u -p <desired_new_directory>
+rm -rf <installation_shell_script>
+```
+
+Installation of the Miniconda is required, and Miniconda environment needs to be activated every time before running the AlleleCatalog pipeline.
+
+Write a Conda configuration file (.condarc) before creating a Conda environment:
+
+```
+nano ~/.condarc
+```
+
+Put the following text into the Conda configuration file (make sure you change *envs_dirs* and *pkgs_dirs*) then save the file:
+
+Please make sure to replace _/new/path/to/_ to an actual directory absolute path.
+
+```
+envs_dirs:
+	- /new/path/to/miniconda/envs
+pkgs_dirs:
+	- /new/path/to/miniconda/pkgs
+channels:
+	- conda-forge
+	- bioconda
+	- defaults
+```
+
+Create a Conda environment by specifying all required packages (option 1).
+
+Please make sure to replace the _<conda_environment_name>_ to an environment name of your choice.
+
+```
+conda create -n <conda_environment_name> bioconda::gatk4 bioconda::samtools bioconda::bcftools bioconda::htslib \
+bioconda::bedtools bioconda::bwa bioconda::snakemake bioconda::snakemake-executor-plugin-cluster-generic \
+conda-forge::numpy conda-forge::pandas
+```
+
+Create a Conda environment by using a yaml environment file (option 2).
+
+Please make sure to replace the _<conda_environment_name>_ to an environment name of your choice.
+
+```
+conda create --name <conda_environment_name> --file AlleleCatalog-environment.yml
+```
+
+Create a Conda environment by using a explicit specification file (option 3).
+
+Please make sure to replace the _<conda_environment_name>_ to an environment name of your choice.
+
+```
+conda create --name <conda_environment_name> --file AlleleCatalog-spec-file.txt
+```
+
+Activate Conda environment using conda activate command. 
+
+This step is required every time before running AlleleCatalog pipeline.
+
+Please make sure to replace the _<conda_environment_name>_ to an environment name of your choice.
+
+```
+conda activate <conda_environment_name>
+```
 
 ## Installation
 
@@ -25,6 +110,18 @@ You can install the AlleleCatalog from [Github](https://github.com/yenon118/Alle
 ```
 git clone https://github.com/yenon118/AlleleCatalog.git
 ```
+
+Create a "tools" folder within the AlleleCatalog pipeline clone. 
+
+```
+cd AlleleCatalog
+mkdir -p tools
+cd tools
+```
+
+The Beagle imputation tool can be downloaded from [https://faculty.washington.edu/browning/beagle/beagle.html](https://faculty.washington.edu/browning/beagle/beagle.html) and placed inside the "tools" folder.
+
+The SnpEff functional effect prediction tool can be downloaded from [https://pcingola.github.io/SnpEff/download/](https://pcingola.github.io/SnpEff/download/) and placed in the "tools" folder. 
 
 ## Usage
 
@@ -104,7 +201,11 @@ Mandatory Positional Argumants:
 
 ## Examples
 
-These are a few basic examples which show you how to use the AlleleCatalog:
+Below are some fundamental examples illustrating the usage of the AlleleCatalog pipeline.
+
+Please adjust _/path/to/_ to an actual directory absolute path.
+
+**Examples of running without an executor.**
 
 ```
 cd /path/to/AlleleCatalog
@@ -112,14 +213,31 @@ cd /path/to/AlleleCatalog
 snakemake -pj 3 --configfile inputs.json --snakefile AlleleCatalog.smk
 ```
 
+**Examples of running with an executor.**
+
+Snakemake version >= 8.0.0.
+
+```
+cd /path/to/AlleleCatalog
+
+snakemake --executor cluster-generic \
+--cluster-generic-submit-cmd "sbatch --account=xulab --cpus-per-task=3 --time=0-02:00 \
+--partition=Lewis,BioCompute,hpc5,General --mem=64G" \
+--jobs 25 --latency-wait 60 \
+--configfile lewis_slurm_inputs.json \
+--snakefile AlleleCatalog.smk
+```
+
+Snakemake version < 8.0.0.
+
 ```
 cd /path/to/AlleleCatalog
 
 snakemake --cluster "sbatch --account=xulab --cpus-per-task=3 --time=0-02:00 \
 --partition=Lewis,BioCompute,hpc5,General --mem=64G" \
 --jobs 25 --latency-wait 60 \
---configfile /storage/htc/joshilab/yenc/projects/AlleleCatalog/lewis_slurm_inputs.json \
---snakefile /storage/htc/joshilab/yenc/projects/AlleleCatalog/AlleleCatalog.smk
+--configfile lewis_slurm_inputs.json \
+--snakefile AlleleCatalog.smk
 ```
 
 ## Citation
