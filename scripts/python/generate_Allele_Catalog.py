@@ -216,7 +216,7 @@ def main(args):
 					end = str(line_array[4]).strip()
 					attributes = str(line_array[8]).strip()
 
-					gene_id = re.sub('(;.*)', '', re.sub(re.compile(".*"+str(gff_key)+"="), '', attributes))
+					gene_id = re.sub('(;.*)', '', re.sub(re.compile(".*"+str(gff_key)), '', attributes))
 
 					if (chromosome_array is None):
 						if (chromosome not in gff_dict.keys()):
