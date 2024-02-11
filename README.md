@@ -36,12 +36,20 @@ To install Miniconda in a server or cluster, users can use the command below.
 
 Please remember to replace the _<installation_shell_script>_ to the actual Miniconda installation shell script. In our case, it is **Miniconda3-latest-Linux-x86_64.sh**.
 
-Please also remember to replace the _<desired_new_directory>_ to an actual directory absolute path. 
+Please also remember to replace the _<desired_new_directory>_ to an actual directory absolute path.
 
 ```
 chmod 777 -R <installation_shell_script>
 ./<installation_shell_script> -b -u -p <desired_new_directory>
 rm -rf <installation_shell_script>
+```
+
+After installing Miniconda, initialization of Miniconda for bash shell can be done using the command below.
+
+Please also remember to replace the _<desired_new_directory>_ to an actual directory absolute path.
+
+```
+<desired_new_directory>/bin/conda init bash
 ```
 
 Installation of the Miniconda is required, and Miniconda environment needs to be activated every time before running the AlleleCatalog pipeline.
@@ -52,19 +60,21 @@ Write a Conda configuration file (.condarc) before creating a Conda environment:
 nano ~/.condarc
 ```
 
-Put the following text into the Conda configuration file (make sure you change *envs_dirs* and *pkgs_dirs*) then save the file:
+Put the following text into the Conda configuration file (make sure you change _envs_dirs_ and _pkgs_dirs_) then save the file.
+
+Please make sure not use tab in this yaml file, use 4 spaces instead.
 
 Please make sure to replace _/new/path/to/_ to an actual directory absolute path.
 
 ```
 envs_dirs:
-	- /new/path/to/miniconda/envs
+    - /new/path/to/miniconda/envs
 pkgs_dirs:
-	- /new/path/to/miniconda/pkgs
+    - /new/path/to/miniconda/pkgs
 channels:
-	- conda-forge
-	- bioconda
-	- defaults
+    - conda-forge
+    - bioconda
+    - defaults
 ```
 
 Create a Conda environment by specifying all required packages (option 1).
