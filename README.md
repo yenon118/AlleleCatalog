@@ -85,7 +85,7 @@ Please make sure to replace the _<conda_environment_name>_ with an environment n
 ```
 conda create -n <conda_environment_name> bioconda::gatk4 bioconda::samtools bioconda::bcftools bioconda::htslib \
 bioconda::bedtools bioconda::bwa bioconda::snakemake bioconda::snakemake-executor-plugin-cluster-generic \
-conda-forge::numpy conda-forge::pandas
+conda-forge::numpy conda-forge::pandas conda-forge::scipy
 ```
 
 Create a Conda environment by using a yaml environment file (option 2).
