@@ -1,17 +1,16 @@
 
-/data/
-/tools/
-/output/
-/data/Soy775/
-/data/Soy1097/
-/data/Nebraska/
-/scripts/python/Variant/__pycache__/
+/data
+
+/tools
+
+/output
+
+/scripts/python/__pycache__
+/scripts/python/.nfs*
+
 /.snakemake/
 
-/scripts/python/.nfs*
-/data/*.vcf
-/data/*/*.vcf
-/data/*/*/*.vcf
-inputs_test_*
+log*
 *.sh
 *.out
+*.log

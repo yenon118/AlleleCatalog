@@ -18,6 +18,7 @@ samtools>=1.6
 htslib>=1.3
 python>=3.12
 snakemake>=8.4
+scipy>=1.12
 numpy>=1.26
 pandas>=2.2
 Beagle>=5.2
@@ -34,9 +35,9 @@ wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
 To install Miniconda in a server or cluster, users can use the command below.
 
-Please remember to replace the _<installation_shell_script>_ to the actual Miniconda installation shell script. In our case, it is **Miniconda3-latest-Linux-x86_64.sh**.
+Please remember to replace the _<installation_shell_script>_ with the actual Miniconda installation shell script. In our case, it is **Miniconda3-latest-Linux-x86_64.sh**.
 
-Please also remember to replace the _<desired_new_directory>_ to an actual directory absolute path.
+Please also remember to replace the _<desired_new_directory>_ with an actual directory absolute path.
 
 ```
 chmod 777 -R <installation_shell_script>
@@ -46,7 +47,7 @@ rm -rf <installation_shell_script>
 
 After installing Miniconda, initialization of Miniconda for bash shell can be done using the command below.
 
-Please also remember to replace the _<desired_new_directory>_ to an actual directory absolute path.
+Please also remember to replace the _<desired_new_directory>_ with an actual directory absolute path.
 
 ```
 <desired_new_directory>/bin/conda init bash
@@ -64,7 +65,7 @@ Put the following text into the Conda configuration file (make sure you change _
 
 Please make sure not use tab in this yaml file, use 4 spaces instead.
 
-Please make sure to replace _/new/path/to/_ to an actual directory absolute path.
+Please make sure to replace _/new/path/to/_ with an actual directory absolute path.
 
 ```
 envs_dirs:
@@ -79,7 +80,7 @@ channels:
 
 Create a Conda environment by specifying all required packages (option 1).
 
-Please make sure to replace the _<conda_environment_name>_ to an environment name of your choice.
+Please make sure to replace the _<conda_environment_name>_ with an environment name of your choice.
 
 ```
 conda create -n <conda_environment_name> bioconda::gatk4 bioconda::samtools bioconda::bcftools bioconda::htslib \
@@ -89,7 +90,7 @@ conda-forge::numpy conda-forge::pandas
 
 Create a Conda environment by using a yaml environment file (option 2).
 
-Please make sure to replace the _<conda_environment_name>_ to an environment name of your choice.
+Please make sure to replace the _<conda_environment_name>_ with an environment name of your choice.
 
 ```
 conda create --name <conda_environment_name> --file AlleleCatalog-environment.yml
@@ -97,7 +98,7 @@ conda create --name <conda_environment_name> --file AlleleCatalog-environment.ym
 
 Create a Conda environment by using a explicit specification file (option 3).
 
-Please make sure to replace the _<conda_environment_name>_ to an environment name of your choice.
+Please make sure to replace the _<conda_environment_name>_ with an environment name of your choice.
 
 ```
 conda create --name <conda_environment_name> --file AlleleCatalog-spec-file.txt
@@ -107,7 +108,7 @@ Activate Conda environment using conda activate command.
 
 This step is required every time before running AlleleCatalog pipeline.
 
-Please make sure to replace the _<conda_environment_name>_ to an environment name of your choice.
+Please make sure to replace the _<conda_environment_name>_ with an environment name of your choice.
 
 ```
 conda activate <conda_environment_name>
@@ -231,7 +232,7 @@ Snakemake version >= 8.0.0.
 cd /path/to/AlleleCatalog
 
 snakemake --executor cluster-generic \
---cluster-generic-submit-cmd "sbatch --account=xulab --cpus-per-task=3 --time=0-02:00 \
+--cluster-generic-submit-cmd "sbatch --account=xulab --time=0-02:00 \
 --partition=Lewis,BioCompute,hpc5,General --mem=64G" \
 --jobs 25 --latency-wait 60 \
 --configfile lewis_slurm_inputs.json \
@@ -243,7 +244,7 @@ Snakemake version < 8.0.0.
 ```
 cd /path/to/AlleleCatalog
 
-snakemake --cluster "sbatch --account=xulab --cpus-per-task=3 --time=0-02:00 \
+snakemake --cluster "sbatch --account=xulab --time=0-02:00 \
 --partition=Lewis,BioCompute,hpc5,General --mem=64G" \
 --jobs 25 --latency-wait 60 \
 --configfile lewis_slurm_inputs.json \
