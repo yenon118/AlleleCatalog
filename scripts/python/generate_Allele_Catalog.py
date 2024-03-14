@@ -297,7 +297,7 @@ if __name__ == "__main__":
 
 	parser.add_argument('-c', '--chromosome', help='Chromosome', type=str, action='append')
 	parser.add_argument('-a', '--gff_category', help='Gff category', type=str, default='gene')
-	parser.add_argument('-k', '--gff_key', help='Gff key', type=str, default='Name')
+	parser.add_argument('-k', '--gff_key', help='Gff key', type=str, default='Name=')
 
 	args = parser.parse_args()
 
