@@ -232,9 +232,9 @@ Snakemake version >= 8.0.0.
 cd /path/to/AlleleCatalog
 
 snakemake --executor cluster-generic \
---cluster-generic-submit-cmd "sbatch --account=xulab --time=0-02:00 \
+--cluster-generic-submit-cmd "sbatch --account=xudong-lab --time=0-02:00 \
 --nodes=1 --ntasks=1 --cpus-per-task=3 \
---partition=Lewis,BioCompute,hpc5,General --mem=64G" \
+--partition=general,requeue,gpu,joshitr-lab,xudong-lab --mem=64G" \
 --jobs 25 --latency-wait 60 \
 --configfile lewis_slurm_inputs.json \
 --snakefile AlleleCatalog.smk
@@ -245,9 +245,9 @@ Snakemake version < 8.0.0.
 ```
 cd /path/to/AlleleCatalog
 
-snakemake --cluster "sbatch --account=xulab --time=0-02:00 \
+snakemake --cluster "sbatch --account=xudong-lab --time=0-02:00 \
 --nodes=1 --ntasks=1 --cpus-per-task=3 \
---partition=Lewis,BioCompute,hpc5,General --mem=64G" \
+--partition=general,requeue,gpu,joshitr-lab,xudong-lab --mem=64G" \
 --jobs 25 --latency-wait 60 \
 --configfile lewis_slurm_inputs.json \
 --snakefile AlleleCatalog.smk
