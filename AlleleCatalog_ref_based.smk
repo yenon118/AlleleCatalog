@@ -18,57 +18,53 @@ output_folder = config['output_folder']
 memory = config['memory']
 threads = config['threads']
 
-
 input_folder = ''
 input_sample = ''
 input_samples = []
 input_extension = ''
-
 
 reference_folder = ''
 reference_sample = ''
 reference_samples = []
 reference_extension = ''
 
-
 for i in range(len(input_files)):
-	if os.path.dirname(input_files[i]) != input_folder:
-		input_folder = os.path.dirname(input_files[i])
-	possible_sample = re.sub('(\\.vcf.*)', '', str(os.path.basename(input_files[i])))
-	if possible_sample not in input_samples:
-		input_samples.append(possible_sample)
-	possible_extension = re.sub(possible_sample,'',str(os.path.basename(input_files[i])))
-	if possible_extension != input_extension:
-		input_extension = possible_extension
-	possible_sample = re.sub(re.compile('_'+str(chromosomes[i])+'$'), '', possible_sample)
-	if input_sample != possible_sample:
-		input_sample = possible_sample
-
+    if os.path.dirname(input_files[i]) != input_folder:
+        input_folder = os.path.dirname(input_files[i])
+    possible_sample = re.sub('(\\.vcf.*)','',str(os.path.basename(input_files[i])))
+    if possible_sample not in input_samples:
+        input_samples.append(possible_sample)
+    possible_extension = re.sub(possible_sample,'',str(os.path.basename(input_files[i])))
+    if possible_extension != input_extension:
+        input_extension = possible_extension
+    possible_sample = re.sub(re.compile('_' + str(chromosomes[i]) + '$'),'',possible_sample)
+    if input_sample != possible_sample:
+        input_sample = possible_sample
 
 for i in range(len(reference_files)):
-	if os.path.dirname(reference_files[i]) != reference_folder:
-		reference_folder = os.path.dirname(reference_files[i])
-	possible_sample = re.sub('(\\.vcf.*)', '', str(os.path.basename(reference_files[i])))
-	if possible_sample not in reference_samples:
-		reference_samples.append(possible_sample)
-	possible_extension = re.sub(possible_sample,'',str(os.path.basename(reference_files[i])))
-	if possible_extension != reference_extension:
-		reference_extension = possible_extension
-	possible_sample = re.sub(re.compile('_'+str(chromosomes[i])+'$'), '', possible_sample)
-	if reference_sample != possible_sample:
-		reference_sample = possible_sample
+    if os.path.dirname(reference_files[i]) != reference_folder:
+        reference_folder = os.path.dirname(reference_files[i])
+    possible_sample = re.sub('(\\.vcf.*)','',str(os.path.basename(reference_files[i])))
+    if possible_sample not in reference_samples:
+        reference_samples.append(possible_sample)
+    possible_extension = re.sub(possible_sample,'',str(os.path.basename(reference_files[i])))
+    if possible_extension != reference_extension:
+        reference_extension = possible_extension
+    possible_sample = re.sub(re.compile('_' + str(chromosomes[i]) + '$'),'',possible_sample)
+    if reference_sample != possible_sample:
+        reference_sample = possible_sample
 
 
 rule all:
-	input:
-		expand(os.path.join(os.path.abspath(output_folder), 'beagle_impute_input_file', input_sample+'_{chromosome}'+input_extension), chromosome=chromosomes),
-		expand(os.path.join(os.path.abspath(output_folder), 'snpEff_input_file', input_sample+'_{chromosome}.html'), chromosome=chromosomes),
-		expand(os.path.join(os.path.abspath(output_folder), 'snpEff_input_file', input_sample+'_{chromosome}'+input_extension), chromosome=chromosomes),
-		expand(os.path.join(os.path.abspath(output_folder), 'grep_effects', input_sample+'_{chromosome}'+input_extension), chromosome=chromosomes),
-		expand(os.path.join(os.path.abspath(output_folder), 'generate_functional_effect_data', input_sample+'_{chromosome}.txt'), chromosome=chromosomes),
-		expand(os.path.join(os.path.abspath(output_folder), 'generate_imputation_data', input_sample+'_{chromosome}.txt'), chromosome=chromosomes),
-		expand(os.path.join(os.path.abspath(output_folder), 'generate_genotype_data', input_sample+'_{chromosome}.txt'), chromosome=chromosomes),
-		expand(os.path.join(os.path.abspath(output_folder), 'generate_Allele_Catalog', input_sample+'_{chromosome}.txt'), chromosome=chromosomes)
+    input:
+        expand(os.path.join(os.path.abspath(output_folder),'beagle_impute_input_file',input_sample + '_{chromosome}' + input_extension),chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder),'snpEff_input_file',input_sample + '_{chromosome}.html'),chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder),'snpEff_input_file',input_sample + '_{chromosome}' + input_extension),chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder),'grep_effects',input_sample + '_{chromosome}' + input_extension),chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder),'generate_functional_effect_data',input_sample + '_{chromosome}.txt'),chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder),'generate_imputation_data',input_sample + '_{chromosome}.txt'),chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder),'generate_genotype_data',input_sample + '_{chromosome}.txt'),chromosome=chromosomes),
+        expand(os.path.join(os.path.abspath(output_folder),'generate_Allele_Catalog',input_sample + '_{chromosome}.txt'),chromosome=chromosomes)
 
 
 include: './rules/java/beagle_impute_input_file_with_reference_file.smk'

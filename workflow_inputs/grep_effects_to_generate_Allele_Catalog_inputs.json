@@ -1,26 +1,26 @@
 {
-	"project_name": "Test_Soy1066",
-	"workflow_path": "/scratch/yenc/projects/AlleleCatalog",
-	"input_files": [
-		"/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/Bcftools_view_reheader/test_Soy1066_Chr01.vcf.gz",
-		"/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/Bcftools_view_reheader/test_Soy1066_Chr02.vcf.gz",
-		"/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/Bcftools_view_reheader/test_Soy1066_Chr03.vcf.gz"
-	],
-	"chromosomes": [
-		"Chr01",
-		"Chr02",
-		"Chr03"
-	],
-	"unimputed_input_files": [
-		"/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr01.vcf.gz",
-		"/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr02.vcf.gz",
-		"/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr03.vcf.gz"
-	],
-	"metadata_file": "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/Soy1066_allele_line_info.txt",
-	"gff_file": "/scratch/yenc/projects/AlleleCatalog/data/test_Soy1066/Wm82.a2.v1.genes.tiny.gff",
-	"gff_category": "gene",
-	"gff_key": "Name=",
-	"output_folder": "/scratch/yenc/projects/AlleleCatalog/output/Test_Soy1066_grep_effects_to_generate_Allele_Catalog/",
-	"memory": 100,
-	"threads": 4
+  "project_name": "Test_Soy1066",
+  "workflow_path": "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog",
+  "input_files": [
+    "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog/data/test_Soy1066/Bcftools_view_reheader/test_Soy1066_Chr01.vcf.gz",
+    "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog/data/test_Soy1066/Bcftools_view_reheader/test_Soy1066_Chr02.vcf.gz",
+    "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog/data/test_Soy1066/Bcftools_view_reheader/test_Soy1066_Chr03.vcf.gz"
+  ],
+  "chromosomes": [
+    "Chr01",
+    "Chr02",
+    "Chr03"
+  ],
+  "unimputed_input_files": [
+    "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr01.vcf.gz",
+    "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr02.vcf.gz",
+    "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog/data/test_Soy1066/unimpute_data/test_Soy1066_Chr03.vcf.gz"
+  ],
+  "metadata_file": "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog/data/test_Soy1066/Soy1066_allele_line_info.txt",
+  "gff_file": "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog/data/test_Soy1066/Wm82.a2.v1.genes.tiny.gff",
+  "gff_category": "gene",
+  "gff_key": "Name=",
+  "output_folder": "/mnt/pixstor/joshitr-lab/chanye/projects/AlleleCatalog/output/Test_Soy1066_grep_effects_to_generate_Allele_Catalog/",
+  "memory": 100,
+  "threads": 4
 }
